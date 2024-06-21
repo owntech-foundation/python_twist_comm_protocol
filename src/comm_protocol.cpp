@@ -30,6 +30,11 @@
 
 #include "comm_protocol.h"
 
+#define LEG1_CAPA_DGND PC6
+#define LEG2_CAPA_DGND PB7
+#define LEG1_DRIVER_SWITCH PC12
+#define LEG2_DRIVER_SWITCH PC13
+
 extern float32_t V1_low_value;
 extern float32_t V2_low_value;
 extern float32_t I1_low_value;
@@ -333,4 +338,3 @@ void powerLegSettingsHandler() {
     }
     printk("unknown power command %s\n", bufferstr);
 }
-

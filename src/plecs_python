@@ -1,0 +1,40 @@
+import xmlrpc.client as xml
+import time
+import matplotlib.pyplot as plt
+import numpy as np
+
+model = 'PV_string_model'
+count = np.linspace(0,22,10)
+gen_value = '40'
+init_value = '30'
+for voltage_value in count :
+    plecs = xml.Server("http://localhost:1080/RPC2").plecs
+    plecs.set(model+'/Vref', 'Value', str(voltage_value))
+    # plecs.set(model+'/Constant','Value',init_value)
+    # g = plecs.get(model+'/Out1')
+
+    data = plecs.simulate(model)
+
+    # Extracting time and values
+    time = data['Time']
+    values1 = data['Values'][0]
+    # values2 = data['Values'][1]
+    # values3 = data['Values'][2]
+    # values4 = data['Values'][3]
+
+    # Extracting the last 10 values for values1 and values2
+    last_10_values1 = values1[-10:]
+    # last_10_values2 = values2[-10:]
+    # last_10_values3 = values3[-10:]
+    # last_10_values4 = values4[-10:]
+
+    # Calculating the average of the last 10 values
+    average_values1 = sum(last_10_values1) / len(last_10_values1)
+    # average_values2 = sum(last_10_values2) / len(last_10_values2)
+    # average_values3 = sum(last_10_values3) / len(last_10_values3)
+    # average_values4 = sum(last_10_values4) / len(last_10_values4)
+
+    print(f"Average of last 10 values for values1: {average_values1}")
+    # print(f"Average of last 10 values for values2: {average_values2}")
+    # print(f"Average of last 10 values for values3: {average_values3}")
+    # print(f"Average of last 10 values for values4: {average_values4}")
