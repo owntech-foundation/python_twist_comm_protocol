@@ -37,6 +37,10 @@ extern float32_t I2_low_value;
 extern float32_t I_high_value;
 extern float32_t V_high_value;
 
+extern float32_t V1_max;
+extern float32_t V2_max;
+
+
 float32_t reference_value = 0.0;
 
 // Declare the tracking variable struct
@@ -146,6 +150,52 @@ void initial_handle(uint8_t received_char)
     default:
         break;
     }
+}
+
+void frame_POWER_OFF()
+{
+    printk("{%u,%u,%u,%u}:", RS485_success,
+                                Sync_success,
+                                Analog_success,
+                                Can_success);
+    printk("[%d,%d,%d,%d,%d]:", power_leg_settings[LEG1].settings[0],
+                                power_leg_settings[LEG1].settings[1],
+                                power_leg_settings[LEG1].settings[2],
+                                power_leg_settings[LEG1].settings[3],
+                                power_leg_settings[LEG1].settings[4]);
+    printk("%f:", power_leg_settings[LEG1].duty_cycle);
+    printk("%f:", power_leg_settings[LEG1].reference_value);
+    printk("%s:", power_leg_settings[LEG1].tracking_var_name);
+    printk("%f:", tracking_vars[LEG1].address[0]);
+    printk("[%d,%d,%d,%d,%d]:", power_leg_settings[LEG2].settings[0],
+                                power_leg_settings[LEG2].settings[1],
+                                power_leg_settings[LEG2].settings[2],
+                                power_leg_settings[LEG2].settings[3],
+                                power_leg_settings[LEG2].settings[4]);
+    printk("%f:", power_leg_settings[LEG2].duty_cycle);
+    printk("%f:", power_leg_settings[LEG2].reference_value);
+    printk("%s:", power_leg_settings[LEG2].tracking_var_name);
+    printk("%f:", tracking_vars[LEG2].address[0]);
+    printk("\n");
+}
+
+void frame_POWER_ON()
+{
+    printk("%f:", power_leg_settings[LEG1].duty_cycle);
+    printk("%f:", V1_low_value);
+    printk("%f:", I1_low_value);
+    printk("%f:", V1_max);
+    printk("%f:", power_leg_settings[LEG2].duty_cycle);
+    printk("%f:", I2_low_value);
+    printk("%f:", V2_low_value);
+    printk("%f:", V2_max);
+    printk("%f:", V_high_value);
+    printk("%f:", I_high_value);
+    printk("{%d:%d:%d:%d}", analog_value ,
+                            can_test_ctrl_enable,
+                            can_test_reference_value,
+                            rx_consigne.test_RS485);
+    printk("\n");
 }
 
 void console_read_line()

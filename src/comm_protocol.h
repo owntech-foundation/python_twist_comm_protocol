@@ -199,6 +199,29 @@ extern bool print_done;
  */
 void initial_handle(uint8_t received_char);
 
+
+/**
+ * @brief Sends out a POWER OFF frame.
+ *
+ * This factory test ON frame sends out data on the following format:
+ *
+ * {RS485,Sync,Analog,CAN}:
+ * [LEG_ON,CAPA_ON,DRIVER_ON,BUCK_ON,BOOST_ON]:DUTY:REF_VALUE:REF_NAME:REF_VAR_ADDR:
+ * [LEG_ON,CAPA_ON,DRIVER_ON,BUCK_ON,BOOST_ON]:DUTY:REF_VALUE:REF_NAME:REF_VAR_ADDR:
+ */
+void frame_POWER_OFF();
+
+/**
+ * @brief Sends out a POWER ON frame.
+ *
+ * This function sends out a POWER ON frame with data on the following format:
+ *
+ * DUTY1:V1:I1:V1_MAX:DUTY2:V2:I2:V2_MAX:VH:IH:{Analog,CAN_CTRL,CAN_REF,RS485_Value}
+ */
+void frame_POWER_ON();
+
+
+
 /**
  * @brief Reads a line from the console input.
  *
