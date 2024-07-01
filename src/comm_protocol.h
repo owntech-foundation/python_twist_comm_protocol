@@ -91,7 +91,7 @@ typedef struct {
  */
 typedef struct {
     bool settings[5];               /**< Array of boolean settings */
-    pin_t switches[2];              /**< Array of switches */
+    leg_t switches[2];              /**< Array of switches */
     float32_t *tracking_variable;   /**< Pointer to the tracking variable */
     const char *tracking_var_name;  /**< Name of the tracking variable */
     float32_t reference_value;      /**< Reference value */

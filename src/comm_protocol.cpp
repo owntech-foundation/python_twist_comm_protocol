@@ -51,8 +51,8 @@ TrackingVariables tracking_vars[] = {
 
 PowerLegSettings power_leg_settings[] = {
     //   LEG_OFF      ,   CAPA_OFF      , DRIVER_OFF      ,  BUCK_MODE_ON,  BOOST_MODE_ON
-    {{BOOL_SETTING_OFF, BOOL_SETTING_OFF, BOOL_SETTING_OFF,  BOOL_SETTING_OFF,  BOOL_SETTING_OFF}, {LEG1_CAPA_DGND, LEG1_DRIVER_SWITCH},  &V1_low_value, "V1", reference_value, 0.1},
-    {{BOOL_SETTING_OFF, BOOL_SETTING_OFF, BOOL_SETTING_OFF,  BOOL_SETTING_OFF,  BOOL_SETTING_OFF}, {LEG2_CAPA_DGND, LEG2_DRIVER_SWITCH},  &V2_low_value, "V2",reference_value, 0.1}
+    {{BOOL_SETTING_OFF, BOOL_SETTING_OFF, BOOL_SETTING_OFF,  BOOL_SETTING_OFF,  BOOL_SETTING_OFF}, {LEG1, LEG1},  &V1_low_value, "V1", reference_value, 0.1},
+    {{BOOL_SETTING_OFF, BOOL_SETTING_OFF, BOOL_SETTING_OFF,  BOOL_SETTING_OFF,  BOOL_SETTING_OFF}, {LEG2, LEG2},  &V2_low_value, "V2",reference_value, 0.1}
 };
 
 cmdToSettings_t power_settings[] = {
@@ -266,12 +266,12 @@ void boolSettingsHandler(uint8_t power_leg, uint8_t setting_position)
 {
     if (strncmp(bufferstr + 7, "_on", 3) == 0) {
         power_leg_settings[power_leg].settings[setting_position] = BOOL_SETTING_ON;
-        if (setting_position == BOOL_CAPA)  spin.gpio.resetPin(power_leg_settings[power_leg].switches[CAPA_SWITCH_INDEX]);  //turns the capacitor switch ON
-        if (setting_position == BOOL_DRIVER)  spin.gpio.resetPin(power_leg_settings[power_leg].switches[DRIVER_SWITCH_INDEX]);  //turns the capacitor switch ON
+        if (setting_position == BOOL_CAPA)    twist.connectLegCapacitor(power_leg_settings[power_leg].switches[CAPA_SWITCH_INDEX]);  //turns the capacitor switch ON
+        // if (setting_position == BOOL_DRIVER)  ;  //turns the capacitor switch ON
     } else if (strncmp(bufferstr + 7, "_off", 4) == 0) {
         power_leg_settings[power_leg].settings[setting_position] = BOOL_SETTING_OFF;
-        if (setting_position == BOOL_CAPA)  spin.gpio.setPin(power_leg_settings[power_leg].switches[CAPA_SWITCH_INDEX]);  //turns the capacitor switch ON
-        if (setting_position == BOOL_DRIVER)  spin.gpio.setPin(power_leg_settings[power_leg].switches[DRIVER_SWITCH_INDEX]);  //turns the capacitor switch ON
+        if (setting_position == BOOL_CAPA)  twist.connectLegCapacitor(power_leg_settings[power_leg].switches[CAPA_SWITCH_INDEX]);  //turns the capacitor switch ON
+        // if (setting_position == BOOL_DRIVER)  spin.gpio.setPin(power_leg_settings[power_leg].switches[DRIVER_SWITCH_INDEX]);  //turns the capacitor switch ON
     }
     else {
         // Unknown command
@@ -333,4 +333,3 @@ void powerLegSettingsHandler() {
     }
     printk("unknown power command %s\n", bufferstr);
 }
-
