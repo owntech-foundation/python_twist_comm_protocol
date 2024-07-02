@@ -117,7 +117,7 @@ class Twist_Device:
 
         size_check = False
         while size_check == False:
-            reading = self.get_TWIST_line()
+            reading = self.getLine()
             reading = [elem.replace('{', '').replace('}', '') for elem in reading] #eliminates curly brackets from the message
             if len(reading) == 14 : size_check = True               #14 is the length of the communication buffer
 
