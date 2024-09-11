@@ -30,8 +30,7 @@
 //-------------OWNTECH DRIVERS-------------------
 #include "SpinAPI.h"
 #include "TaskAPI.h"
-#include "TwistAPI.h"
-#include "DataAPI.h"
+#include "ShieldAPI.h"
 
 
 #include "zephyr/console/console.h"
@@ -81,7 +80,7 @@ extern tester_states_t mode;
 typedef struct {
     const char *name;           /**< Name of the tracking variable */
     float32_t *address;         /**< Memory address of the tracking variable */
-    channel_t channel_reference; /**< Channel reference of the tracking variable */
+    sensor_t channel_reference; /**< Channel reference of the tracking variable */
 } TrackingVariables;
 /**
  * @brief Structure representing the settings of a power leg.
