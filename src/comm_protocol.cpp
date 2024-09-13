@@ -37,9 +37,21 @@ extern float32_t I2_low_value;
 extern float32_t I_high_value;
 extern float32_t V_high_value;
 
+extern float32_t T1_value;
+extern float32_t T2_value;
+
+
 extern float32_t V1_max;
 extern float32_t V2_max;
 
+#ifdef CONFIG_SHIELD_OWNVERTER
+
+extern float32_t V3_low_value;
+extern float32_t I3_low_value;
+extern float32_t V3_max;
+extern float32_t T3_value;
+
+#endif
 
 float32_t reference_value = 0.0;
 
@@ -51,12 +63,19 @@ TrackingVariables tracking_vars[] = {
     {"I1", &I1_low_value, I1_LOW},
     {"I2", &I2_low_value, I2_LOW},
     {"IH", &I_high_value, I_HIGH}
+#ifdef CONFIG_SHIELD_OWNVERTER
+    ,{"V3", &V3_low_value, V3_LOW},
+     {"I3", &I3_low_value, I3_LOW}
+#endif
 };
 
 PowerLegSettings power_leg_settings[] = {
     //   LEG_OFF      ,   CAPA_OFF      , DRIVER_OFF      ,  BUCK_MODE_ON,  BOOST_MODE_ON
     {{BOOL_SETTING_OFF, BOOL_SETTING_OFF, BOOL_SETTING_OFF,  BOOL_SETTING_OFF,  BOOL_SETTING_OFF}, {LEG1, LEG1},  &V1_low_value, "V1", reference_value, 0.1},
-    {{BOOL_SETTING_OFF, BOOL_SETTING_OFF, BOOL_SETTING_OFF,  BOOL_SETTING_OFF,  BOOL_SETTING_OFF}, {LEG2, LEG2},  &V2_low_value, "V2",reference_value, 0.1}
+    {{BOOL_SETTING_OFF, BOOL_SETTING_OFF, BOOL_SETTING_OFF,  BOOL_SETTING_OFF,  BOOL_SETTING_OFF}, {LEG2, LEG2},  &V2_low_value, "V2", reference_value, 0.1}
+#ifdef CONFIG_SHIELD_OWNVERTER
+    ,{{BOOL_SETTING_OFF, BOOL_SETTING_OFF, BOOL_SETTING_OFF,  BOOL_SETTING_OFF,  BOOL_SETTING_OFF}, {LEG3, LEG3},  &V3_low_value, "V3", reference_value, 0.1}
+#endif
 };
 
 cmdToSettings_t power_settings[] = {
@@ -176,6 +195,17 @@ void frame_POWER_OFF()
     printk("%f:", power_leg_settings[LEG2].reference_value);
     printk("%s:", power_leg_settings[LEG2].tracking_var_name);
     printk("%f:", tracking_vars[LEG2].address[0]);
+#ifdef CONFIG_SHIELD_OWNVERTER
+    printk("[%d,%d,%d,%d,%d]:", power_leg_settings[LEG3].settings[0],
+                                power_leg_settings[LEG3].settings[1],
+                                power_leg_settings[LEG3].settings[2],
+                                power_leg_settings[LEG3].settings[3],
+                                power_leg_settings[LEG3].settings[4]);
+    printk("%f:", power_leg_settings[LEG3].duty_cycle);
+    printk("%f:", power_leg_settings[LEG3].reference_value);
+    printk("%s:", power_leg_settings[LEG3].tracking_var_name);
+    printk("%f:", tracking_vars[LEG3].address[0]);
+#endif
     printk("\n");
 }
 
@@ -185,10 +215,19 @@ void frame_POWER_ON()
     printk("%f:", V1_low_value);
     printk("%f:", I1_low_value);
     printk("%f:", V1_max);
+    printk("%f:", T1_value);
     printk("%f:", power_leg_settings[LEG2].duty_cycle);
     printk("%f:", I2_low_value);
     printk("%f:", V2_low_value);
     printk("%f:", V2_max);
+    printk("%f:", T2_value);
+#ifdef CONFIG_SHIELD_OWNVERTER
+    printk("%f:", power_leg_settings[LEG3].duty_cycle);
+    printk("%f:", I3_low_value);
+    printk("%f:", V3_low_value);
+    printk("%f:", V3_max);
+    printk("%f:", T3_value);
+#endif
     printk("%f:", V_high_value);
     printk("%f:", I_high_value);
     printk("{%d:%d:%d:%d}", analog_value ,
@@ -224,7 +263,10 @@ void console_read_line()
 
 void dutyHandler(uint8_t power_leg, uint8_t setting_position) {
     // Check if the bufferstr starts with "_d_"
-    if (strncmp(bufferstr, "_LEG1_d_", 8) == 0 || strncmp(bufferstr, "_LEG2_d_", 8) == 0) {
+    if (strncmp(bufferstr, "_LEG1_d_", 8) == 0 || 
+        strncmp(bufferstr, "_LEG2_d_", 8) == 0 || 
+        strncmp(bufferstr, "_LEG3_d_", 8) == 0) 
+    {
         // Extract the duty cycle value from the protocol message
         float32_t duty_value = atof(bufferstr + 9);
 
@@ -316,12 +358,16 @@ void boolSettingsHandler(uint8_t power_leg, uint8_t setting_position)
 {
     if (strncmp(bufferstr + 7, "_on", 3) == 0) {
         power_leg_settings[power_leg].settings[setting_position] = BOOL_SETTING_ON;
+#ifdef CONFIG_SHIELD_TWIST
         if (setting_position == BOOL_CAPA)    shield.power.connectCapacitor((leg_t)power_leg);  //turns the capacitor switch ON
-        // if (setting_position == BOOL_DRIVER)  ;  //turns the capacitor switch ON
+#endif
+        if (setting_position == BOOL_DRIVER) shield.power.connectDriver((leg_t)power_leg) ;  
     } else if (strncmp(bufferstr + 7, "_off", 4) == 0) {
         power_leg_settings[power_leg].settings[setting_position] = BOOL_SETTING_OFF;
+#ifdef CONFIG_SHIELD_TWIST
         if (setting_position == BOOL_CAPA)  shield.power.connectCapacitor((leg_t)power_leg);  //turns the capacitor switch ON
-        // if (setting_position == BOOL_DRIVER)  spin.gpio.setPin(power_leg_settings[power_leg].switches[DRIVER_SWITCH_INDEX]);  //turns the capacitor switch ON
+#endif
+        if (setting_position == BOOL_DRIVER) shield.power.disconnectDriver((leg_t)power_leg) ;  
     }
     else {
         // Unknown command
@@ -352,6 +398,10 @@ void powerLegSettingsHandler() {
     leg_t power_leg = LEG1; // Default to LEG1
     if (strncmp(bufferstr, "_LEG2_", strlen("_LEG2_")) == 0) {
         power_leg = LEG2;
+#ifdef CONFIG_SHIELD_OWNVERTER
+    } else if (strncmp(bufferstr, "_LEG3_", strlen("_LEG3_")) == 0) {
+        power_leg = LEG3;    
+#endif
     } else if (strncmp(bufferstr, "_LEG1_", strlen("_LEG1_")) != 0) {
         printk("Unknown leg identifier\n");
         return;

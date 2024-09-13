@@ -25,59 +25,73 @@ SPDX-License-Identifier: LGLPV2.1
 """
 
 import serial,  find_devices
-from Twist_Class import Twist_Device
+from Shield_Class import Shield_Device
+# from owntech.lib.USB.comm_protocol.src.Shield_Class import Shield_Device
 
-twist_vid = 0x2fe3
-twist_pid = 0x0100
+shield_vid = 0x2fe3
+shield_pid = 0x0101
 
-Twist_ports = find_devices.find_twist_device_ports(twist_vid, twist_pid)
-print(Twist_ports)
+Shield_ports = find_devices.find_shield_device_ports(shield_vid, shield_pid)
+print(Shield_ports)
 
-Twist = Twist_Device(twist_port= Twist_ports[0])
+Shield = Shield_Device(shield_port= Shield_ports[0], shield_type= "TWIST")
 
 
-message = Twist.sendCommand("IDLE")
+message = Shield.sendCommand("IDLE")
 print(message)
-message = Twist.sendCommand("POWER_ON")
+message = Shield.sendCommand("POWER_ON")
 print(message)
-message = Twist.sendCommand("POWER_OFF")
+message = Shield.getMeasurement('V1')
 print(message)
-message = Twist.sendCommand("DUTY", "LEG1", 0.01)
+message = Shield.getMeasurement('V2')
 print(message)
-message = Twist.sendCommand("CAPA", "LEG1", "ON")
+message = Shield.getMeasurement('V3')
 print(message)
-message = Twist.sendCommand( "BUCK", "LEG2", "ON")
+
+message = Shield.sendCommand("POWER_OFF")
 print(message)
-message = Twist.sendCommand( "BOOST", "LEG1", "ON")
+message = Shield.sendCommand("DUTY", "LEG1", 0.01)
 print(message)
-message = Twist.sendCommand("LEG","LEG2","ON")
+message = Shield.sendCommand("CAPA", "LEG1", "ON")
 print(message)
-message = Twist.sendCommand("DRIVER","LEG2","ON")
+message = Shield.sendCommand( "BUCK", "LEG3", "ON")
+print(message)
+message = Shield.sendCommand( "BUCK", "LEG2", "ON")
+print(message)
+message = Shield.sendCommand( "BOOST", "LEG1", "ON")
+print(message)
+message = Shield.sendCommand("LEG","LEG2","ON")
+print(message)
+message = Shield.sendCommand("DRIVER","LEG2","ON")
+print(message)
+message = Shield.sendCommand("DRIVER","LEG1","ON")
+print(message)
+message = Shield.sendCommand("DRIVER","LEG3","ON")
 print(message)
 
 
 
 #---------------REFERENCE TEST------------------------------------
-leg_to_test = "LEG1"
+leg_to_test = "LEG2"
 reference_names = ["V1","V2","VH","I1","I2","IH"]
 reference_values = [1, 2, 3, 4, 5, 6]
 
-message1 = Twist.sendCommand("IDLE")
+message1 = Shield.sendCommand("IDLE")
 print(message1)
 
-message1 = Twist.sendCommand("DRIVER",leg_to_test,"ON")
+message1 = Shield.sendCommand("DRIVER",leg_to_test,"ON")
 print(message1)
 
 
 
 for reference, reference_values in zip(reference_names, reference_values):
-    message1 = Twist.sendCommand("POWER_OFF")
+    message1 = Shield.sendCommand("POWER_OFF")
     print(message1)
-    message1 = Twist.sendCommand("REFERENCE",leg_to_test,reference,reference_values)
+    message1 = Shield.sendCommand("REFERENCE",leg_to_test,reference,reference_values)
     print(message1)
-    message1 = Twist.sendCommand("POWER_ON")
+    message1 = Shield.sendCommand("POWER_ON")
     print(message1)
 
 
-message1 = Twist.sendCommand("IDLE")
+message1 = Shield.sendCommand("IDLE")
 print(message1)

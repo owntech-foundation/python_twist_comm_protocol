@@ -26,7 +26,7 @@ SPDX-License-Identifier: LGLPV2.1
 
 from serial.tools import list_ports
 
-def find_twist_device_ports(target_vid=0x2fe3, target_pid=0x0100, num_devices = 1):
+def find_shield_device_ports(target_vid=0x2fe3, target_pid=0x0100, num_devices = 1):
     found_devices = []  # List to store the ports for the found devices
 
     # Get a list of all available ports
@@ -45,10 +45,10 @@ def find_twist_device_ports(target_vid=0x2fe3, target_pid=0x0100, num_devices = 
     return []
 
 target_vid = 0x2fe3
-target_pid = 0x0100
+target_pid = 0x0101
 num_devices = 1
 
-target_ports = find_twist_device_ports(target_vid, target_pid, num_devices)
+target_ports = find_shield_device_ports(target_vid, target_pid, num_devices)
 
 if len(target_ports) == num_devices:
     print("Ports for devices with target VID and PID:", target_ports)

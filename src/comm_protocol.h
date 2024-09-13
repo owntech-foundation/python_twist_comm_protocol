@@ -57,8 +57,34 @@
 #define CAPA_SWITCH_INDEX 0
 #define DRIVER_SWITCH_INDEX 1
 
+
 #define GET_ID(x) ((x >> 6) & 0x3)        // retrieve identifiant
 #define GET_STATUS(x) (x & 1) // check the status (IDLE MODE or POWER MODE)
+
+#ifdef CONFIG_SHIELD_TWIST
+
+#define NUM_OF_TRACK_VARIABLES 6
+#define NUM_OF_LEGS 2
+
+#endif
+
+#ifdef CONFIG_SHIELD_OWNVERTER
+
+#define NUM_OF_TRACK_VARIABLES 8
+#define NUM_OF_LEGS 3
+
+#endif
+
+#define LENGTH_FRAME_COMM_VAR 4
+#define LENGTH_OFF_FRAME_VAR_PER_LEG 9
+#define LENGTH_OFF_FRAME (LENGTH_FRAME_COMM_VAR + (NUM_OF_LEGS * LENGTH_OFF_FRAME_VAR_PER_LEG) )
+
+
+#define LENGTH_ON_FRAME_COMM_VAR 4
+#define LENGTH_ON_FRAME_VAR_PER_LEG 5
+#define LENGTH_ON_FRAME_VAR_HIGH 2
+#define LENGTH_ON_FRAME ((NUM_OF_LEGS * LENGTH_ON_FRAME_VAR_PER_LEG) + LENGTH_ON_FRAME_VAR_HIGH + LENGTH_FRAME_COMM_VAR )
+
 
 extern uint8_t received_serial_char;
 extern uint8_t received_char;
@@ -133,8 +159,8 @@ typedef struct {
     uint8_t id_and_status;          /**< Status information */
 } ConsigneStruct_t;
 
-extern TrackingVariables tracking_vars[6];
-extern PowerLegSettings power_leg_settings[2];
+extern TrackingVariables tracking_vars[NUM_OF_TRACK_VARIABLES];
+extern PowerLegSettings power_leg_settings[NUM_OF_LEGS];
 extern cmdToSettings_t power_settings[7];
 extern cmdToState_t default_commands[3];
 
