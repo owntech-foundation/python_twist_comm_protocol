@@ -31,6 +31,7 @@
 #include "SpinAPI.h"
 #include "TaskAPI.h"
 #include "ShieldAPI.h"
+#include "CommunicationAPI.h"
 
 
 #include "zephyr/console/console.h"
@@ -71,6 +72,10 @@ typedef enum
 
 extern tester_states_t mode;
 
+typedef enum
+{
+    READ_SCOPE, ENABLE_ACQUISITION
+} scope_commands_t;
 
 /**
  * @brief Structure representing tracking variables and their information.
@@ -118,6 +123,11 @@ typedef struct {
     tester_states_t mode;    /**< Tester state */
 } cmdToState_t;
 
+typedef struct {
+    char cmd[16];             /**< Command string */
+    scope_commands_t action;    /**< Scope command */
+} scopeToCommand_t;
+
 
 /**
  * @brief Structure representing various measurements and statuses.
@@ -137,6 +147,7 @@ extern TrackingVariables tracking_vars[6];
 extern PowerLegSettings power_leg_settings[2];
 extern cmdToSettings_t power_settings[7];
 extern cmdToState_t default_commands[3];
+extern scopeToCommand_t scope_commands[2];
 
 extern tester_states_t mode;
 extern uint8_t num_tracking_vars;
@@ -148,7 +159,7 @@ extern ConsigneStruct_t rx_consigne;
 
 extern uint8_t* buffer_tx;
 extern uint8_t* buffer_rx;
-
+extern Rs485Communication rs485;
 
 extern uint8_t status;
 extern uint32_t counter_time;
@@ -238,6 +249,14 @@ void console_read_line();
 void defaultHandler();
 
 /**
+ * @brief Handles scope commands.
+ *
+ * This function handles scope commands by matching the received command with predefined scope commands and executing corresponding actions.
+ *
+ */
+void scopeHandler();
+
+/**
  * @brief Handles power leg settings commands.
  *
  * This function determines the power leg based on the received message and delegates the command handling to specific setting handlers.
@@ -288,5 +307,20 @@ void referenceHandler(uint8_t power_leg, uint8_t setting_position);
  */
 void calibrationHandler();
 
+/**
+ * @brief Handles slave reception.
+ *
+ * This function receives data from the slave device, processes it, and prepares a response.
+ * It updates various variables and starts transmission over the RS485 communication interface.
+ */
+void slave_reception_function(void);
+
+/**
+ * @brief Handles master reception.
+ *
+ * This function receives data from the master device, processes it, and updates relevant variables.
+ * It checks for various conditions to determine the success of data reception and synchronization.
+ */
+void master_reception_function(void);
 
 #endif  //TEST_BENCH_COMM_PROTOCOL_H
