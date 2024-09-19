@@ -98,6 +98,10 @@ typedef enum
 
 extern tester_states_t mode;
 
+typedef enum
+{
+    READ_SCOPE, ENABLE_ACQUISITION
+} scope_commands_t;
 
 /**
  * @brief Structure representing tracking variables and their information.
@@ -145,6 +149,11 @@ typedef struct {
     tester_states_t mode;    /**< Tester state */
 } cmdToState_t;
 
+typedef struct {
+    char cmd[16];             /**< Command string */
+    scope_commands_t action;    /**< Scope command */
+} scopeToCommand_t;
+
 
 /**
  * @brief Structure representing various measurements and statuses.
@@ -164,6 +173,7 @@ extern TrackingVariables tracking_vars[NUM_OF_TRACK_VARIABLES];
 extern PowerLegSettings power_leg_settings[NUM_OF_LEGS];
 extern cmdToSettings_t power_settings[7];
 extern cmdToState_t default_commands[3];
+extern scopeToCommand_t scope_commands[2];
 
 extern tester_states_t mode;
 extern uint8_t num_tracking_vars;
@@ -175,7 +185,7 @@ extern ConsigneStruct_t rx_consigne;
 
 extern uint8_t* buffer_tx;
 extern uint8_t* buffer_rx;
-
+extern Rs485Communication rs485;
 
 extern uint8_t status;
 extern uint32_t counter_time;
@@ -263,6 +273,14 @@ void console_read_line();
  *
  */
 void defaultHandler();
+
+/**
+ * @brief Handles scope commands.
+ *
+ * This function handles scope commands by matching the received command with predefined scope commands and executing corresponding actions.
+ *
+ */
+void scopeHandler();
 
 /**
  * @brief Handles power leg settings commands.

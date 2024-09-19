@@ -52,6 +52,13 @@ extern float32_t V3_max;
 extern float32_t T3_value;
 
 #endif
+extern float32_t duty_cycle;
+bool is_downloading;
+bool enable_acq;
+extern uint32_t num_trig_ratio_point;
+extern uint16_t NB_DATAS;
+
+extern Rs485Communication rs485;
 
 float32_t reference_value = 0.0;
 
@@ -94,11 +101,19 @@ cmdToState_t default_commands[] = {
     {"_o", POWER_ON},
 };
 
+scopeToCommand_t scope_commands[] = {
+    {"_a", ENABLE_ACQUISITION},
+    {"_r", READ_SCOPE},
+};
+
+
 tester_states_t mode = IDLE;
+scope_commands_t action;
 
 uint8_t num_tracking_vars = sizeof(tracking_vars)/sizeof(tracking_vars[0]);
 uint8_t num_power_settings =  sizeof(power_settings)/sizeof(power_settings[0]);
 uint8_t num_default_commands = sizeof(default_commands)/sizeof(default_commands[0]);
+uint8_t num_scope_commands = sizeof(scope_commands)/sizeof(scope_commands[0]);
 
 ConsigneStruct_t tx_consigne;
 ConsigneStruct_t rx_consigne;
@@ -149,25 +164,37 @@ void initial_handle(uint8_t received_char)
 {
     switch (received_char)
     {
-    case 'd':
-        console_read_line();
-        printk("buffer str = %s\n", bufferstr);
-        defaultHandler();
-        // spin.led.turnOn();
-        break;
-    case 's':
-        console_read_line();
-        printk("buffer str = %s\n", bufferstr);
-        powerLegSettingsHandler();
-        // counter = 0;
-        break;
-    case 'k':
-        console_read_line();
-        printk("buffer str = %s\n", bufferstr);
-        calibrationHandler();
-        break;
-    default:
-        break;
+        case 'd':
+            console_read_line();
+            printk("buffer str = %s\n", bufferstr);
+            defaultHandler();
+            // spin.led.turnOn();
+            break;
+        case 's':
+            console_read_line();
+            printk("buffer str = %s\n", bufferstr);
+            powerLegSettingsHandler();
+            // counter = 0;
+            break;
+        case 'k':
+            console_read_line();
+            printk("buffer str = %s\n", bufferstr);
+            calibrationHandler();
+            break;
+        case 'o': // 'o' for oscilloscope -> scope command ('a' or 'r')
+            console_read_line();
+            printk("buffer str = %s\n", bufferstr);
+            scopeHandler();
+        // case 'r':
+        //     is_downloading = true;
+        //     break;
+        // case 'a':
+            // enable_acq = !(enable_acq);
+            // break;
+        // case 'c':
+        //     num_trig_ratio_point = (num_trig_ratio_point + 1) % NB_DATAS;
+        default:
+            break;
     }
 }
 
@@ -391,6 +418,36 @@ void defaultHandler()
 }
 
 
+
+void scopeHandler()
+{
+    for(uint8_t i = 0; i < num_default_commands; i++) //iterates the default commands
+    {
+        if (strncmp(bufferstr, scope_commands[i].cmd, strlen(scope_commands[i].cmd)) == 0)
+        {
+            action = scope_commands[i].action;
+            if (action == ENABLE_ACQUISITION) {
+                enable_acq = !(enable_acq);
+                printk("abble");
+            } else if (action == READ_SCOPE) {
+                is_downloading = true;
+                printk("action");
+            }
+            print_done = false; //authorizes printing the current state once
+            return;
+        }
+    }
+    printk("unknown scope command %s\n", bufferstr);
+}  
+
+
+
+
+
+
+
+
+
 // Function to parse the power leg settings commands
 void powerLegSettingsHandler() {
 
@@ -434,6 +491,7 @@ void powerLegSettingsHandler() {
     printk("unknown power command %s\n", bufferstr);
 }
 
+
 void slave_reception_function(void)
 {
     tx_consigne = rx_consigne;
@@ -463,4 +521,5 @@ void master_reception_function(void)
 
     }
 }
+
 
