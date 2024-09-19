@@ -367,9 +367,24 @@ void calibrationHandler() {
                 printk("Offset: %.8f\n", offset);
 
                 // Find the tracking variable and update its gain and offset
+                // Find the tracking variable and update its gain and offset
                 for (uint8_t i = 0; i < num_tracking_vars; i++) {
                     if (strcmp(variable, tracking_vars[i].name) == 0) {
                         shield.sensors.setConversionParametersLinear(tracking_vars[i].channel_reference, gain, offset);
+                        int8_t err_write = shield.sensors.storeParametersInMemory(tracking_vars[i].channel_reference);
+                        
+                        if (err_write){ 
+                            printk("Error writing parameters in permanent storage!\n");
+                        }
+                        
+                        int8_t err_check = shield.sensors.retrieveParametersFromMemory(tracking_vars[i].channel_reference);
+                        
+                        printk("Check for NVS writing (0 if correct) :%d!\n",err_check);
+                        printk("channel name: %s\n", tracking_vars[i].name);
+                        printk("channel: %d\n", tracking_vars[i].channel_reference);
+                        
+                        break;
+                        
                         printk("channel: %s\n", tracking_vars[i].name);
                         printk("channel: %d\n", tracking_vars[i].channel_reference);
                         break;
