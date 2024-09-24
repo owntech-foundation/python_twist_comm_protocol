@@ -27,7 +27,6 @@
  * @author Luiz Villa <luiz.villa@laas.fr>
  */
 
-
 #include "comm_protocol.h"
 
 extern float32_t V1_low_value;
@@ -320,12 +319,11 @@ void console_read_line()
 }
 
 void kpHandler(uint8_t test_leg, uint8_t setting_position){
-      if (strncmp(bufferstr, "_LEG1_d_", 8) == 0 || 
-        strncmp(bufferstr, "_LEG2_d_", 8) == 0 || 
-        strncmp(bufferstr, "_LEG3_d_", 8) == 0) 
+      if (strncmp((bufferstr+5), "_p_", 3)) 
     {
         // Extract the duty cycle value from the protocol message
-        kp = atof(bufferstr + 9);
+        kp = atof(bufferstr + 8);
+        printk(" buffer : %s et valeur : %f", (bufferstr + 8), kp);
 
     } else {
         printk("Invalid protocol format: %s\n", bufferstr);
@@ -333,12 +331,11 @@ void kpHandler(uint8_t test_leg, uint8_t setting_position){
 }
 
 void tiHandler(uint8_t test_leg, uint8_t setting_position){
-      if (strncmp(bufferstr, "_LEG1_d_", 8) == 0 || 
-        strncmp(bufferstr, "_LEG2_d_", 8) == 0 || 
-        strncmp(bufferstr, "_LEG3_d_", 8) == 0) 
+      if (strncmp(bufferstr, "_i_", 3)) 
     {
         // Extract the duty cycle value from the protocol message
-        Ti = atof(bufferstr + 9);
+        Ti = atof(bufferstr + 21);
+        printk(" buffer : %s et valeur : %f", (bufferstr + 21), Ti);
 
     } else {
         printk("Invalid protocol format: %s\n", bufferstr);
@@ -346,12 +343,11 @@ void tiHandler(uint8_t test_leg, uint8_t setting_position){
 }
 
 void tdHandler(uint8_t test_leg, uint8_t setting_position){
-      if (strncmp(bufferstr, "_LEG1_d_", 8) == 0 || 
-        strncmp(bufferstr, "_LEG2_d_", 8) == 0 || 
-        strncmp(bufferstr, "_LEG3_d_", 8) == 0) 
+      if (strncmp(bufferstr, "_d_", 3)) 
     {
         // Extract the duty cycle value from the protocol message
-        Td = atof(bufferstr + 9);
+        Td = atof(bufferstr + 35);
+        printk(" buffer : %s et valeur : %f", (bufferstr + 35), Td);
 
     } else {
         printk("Invalid protocol format: %s\n", bufferstr);
@@ -359,12 +355,11 @@ void tdHandler(uint8_t test_leg, uint8_t setting_position){
 }
 
 void nHandler(uint8_t test_leg, uint8_t setting_position){
-      if (strncmp(bufferstr, "_LEG1_d_", 8) == 0 || 
-        strncmp(bufferstr, "_LEG2_d_", 8) == 0 || 
-        strncmp(bufferstr, "_LEG3_d_", 8) == 0) 
+      if (strncmp(bufferstr, "_n_", 3)) 
     {
         // Extract the duty cycle value from the protocol message
-        N = atof(bufferstr + 9);
+        N = atof(bufferstr + 50);
+        printk(" buffer : %s et valeur : %f", (bufferstr + 50), N);
 
     } else {
         printk("Invalid protocol format: %s\n", bufferstr);
@@ -372,12 +367,11 @@ void nHandler(uint8_t test_leg, uint8_t setting_position){
 }
 
 void upperHandler(uint8_t test_leg, uint8_t setting_position){
-      if (strncmp(bufferstr, "_LEG1_d_", 8) == 0 || 
-        strncmp(bufferstr, "_LEG2_d_", 8) == 0 || 
-        strncmp(bufferstr, "_LEG3_d_", 8) == 0) 
+      if (strncmp(bufferstr, "_u_", 3)) 
     {
         // Extract the duty cycle value from the protocol message
-        upper_bound = atof(bufferstr + 9);
+        upper_bound = atof(bufferstr + 54);
+        printk(" buffer : %s et valeur : %f", (bufferstr + 54), upper_bound);
 
     } else {
         printk("Invalid protocol format: %s\n", bufferstr);
@@ -385,12 +379,11 @@ void upperHandler(uint8_t test_leg, uint8_t setting_position){
 }
 
 void lowerHandler(uint8_t test_leg, uint8_t setting_position){
-      if (strncmp(bufferstr, "_LEG1_d_", 8) == 0 || 
-        strncmp(bufferstr, "_LEG2_d_", 8) == 0 || 
-        strncmp(bufferstr, "_LEG3_d_", 8) == 0) 
+      if (strncmp(bufferstr, "_l_", 3)) 
     {
         // Extract the duty cycle value from the protocol message
-        lower_bound = atof(bufferstr + 9);
+        lower_bound = atof(bufferstr + 60);
+        printk(" buffer : %s et valeur : %f", (bufferstr + 60), lower_bound);
 
     } else {
         printk("Invalid protocol format: %s\n", bufferstr);
@@ -398,12 +391,11 @@ void lowerHandler(uint8_t test_leg, uint8_t setting_position){
 }
 
 void vrefHandler(uint8_t test_leg, uint8_t setting_position){
-      if (strncmp(bufferstr, "_LEG1_d_", 8) == 0 || 
-        strncmp(bufferstr, "_LEG2_d_", 8) == 0 || 
-        strncmp(bufferstr, "_LEG3_d_", 8) == 0) 
+      if (strncmp(bufferstr, "_r_", 3)) 
     {
         // Extract the duty cycle value from the protocol message
-        V_ref = atof(bufferstr + 9);
+        V_ref = atof(bufferstr + 66);
+        printk(" buffer : %s et valeur : %f", (bufferstr + 66), V_ref);
 
     } else {
         printk("Invalid protocol format: %s\n", bufferstr);
@@ -599,32 +591,92 @@ void testSensiHandler()
 
     // COMMAND EXTRACTION
     // Find the position of the second underscore after the leg identifier
-    const char *underscore2 = strchr(bufferstr + 5, '_');
-    if (underscore2 == NULL) {
-        printk("Invalid command format\n");
-        return;
-    }
+    
     // Extract the command part after the leg identifier
-    char command[3];
-    strncpy(command, underscore2, 2);
-    command[2] = '\0';
+    
 
     // FIND THE HANDLER OF THE SPECIFIC SETTING COMMAND
     bool verif = false;
-    for(uint8_t i = 0; i < num_testSensi_settings; i++) //iterates the default commands
-    {
-        if (strncmp(command, testSensi_settings[i].cmd, strlen(testSensi_settings[i].cmd)) == 0)
-        {
-            if (testSensi_settings[i].func != NULL)
-            {
-                testSensi_settings[i].func(test_leg, i); //pointer to the handler function associated with the command
-                verif = true;
-            }
-            
-        }
+    // char* current_pos = underscore2;
+    
+    // while (*current_pos != '\0') {
+    //     // Extract the command part after the leg identifier
+        // char command[3];
+        // strncpy(command, current_pos, 2);
+        // command[2] = '\0';
+    //     printk("\ncurrent pos: %s; buffer : %s; command : %s \n", current_pos, bufferstr, command);
+    //     // Chercher le prochain '_'
+    //     char* next_underscore = strchr(current_pos + 1, '_');
+    //     if (!next_underscore) {
+    //         break;  // S'il n'y a plus de '_', on quitte la boucle
+    //     }
+
+    //     // Calcul de la longueur du segment de commande
+    //     int cmd_length = next_underscore - current_pos;
+        
+    //     // Vérifie chaque commande par rapport à la structure
+    //     for (uint8_t i = 0; i < num_testSensi_settings; i++) {
+    //         // Compare la commande (e.g., "_p", "_i", etc.)
+    //         if (strncmp(current_pos, testSensi_settings[i].cmd, strlen(testSensi_settings[i].cmd)) == 0) {
+    //             // Affiche la commande reconnue
+    //             // printk("Command: %s \n", testSensi_settings[i].cmd);
+                
+    //             // Appelle la fonction associée si elle existe
+    //             if (testSensi_settings[i].func != NULL) {
+    //                 testSensi_settings[i].func(test_leg, i); // Appel de la fonction associée
+    //                 verif = true;
+    //             }
+    //             break;  // On sort de la boucle si la commande est trouvée
+    //         }
+    //     }
+        
+    //     // Passe à la prochaine partie de la chaîne
+    //     // current_pos = next_underscore;
+    //     strcpy(current_pos, next_underscore);
+    //     strcpy(bufferstr, current_pos);
+    // }
+
+    const char *current_pos = strchr(bufferstr + 5, '_');
+    if (current_pos == NULL) {
+        printk("Invalid command format\n");
+        return;
     }
+    // Boucle sur tous les caractères de la chaîne reçue
+    while (*current_pos != '\0') {
+        // Cherche le caractère '_'
+        if (*current_pos == '_') {
+            // Vérifie si le caractère suivant est une lettre (A-Z ou a-z)
+            if (*(current_pos + 1) >= 'a' && *(current_pos + 1) <= 'z') {
+                // Ajoute le '_' et la lettre à la commande
+                char command[3];
+                strncpy(command, current_pos, 2);
+                command[2] = '\0';
+                command[0] = *current_pos;      // Ajoute le '_'
+                command[1] = *(current_pos + 1); // Ajoute la lettre
+                for (uint8_t i = 0; i < num_testSensi_settings; i++) {
+                    // Comparer la commande avec cmd de testSensi_settings
+                    if (strcmp(command, testSensi_settings[i].cmd) == 0) {
+                        // Si une correspondance est trouvée, appeler la fonction associée si elle existe
+                        if (testSensi_settings[i].func != NULL)
+                        {
+                            // strcpy(bufferstr, current_pos);
+                            testSensi_settings[i].func(test_leg, i); //pointer to the handler function associated with the command
+                            verif = true;
+                            printk("\ncommand : %s\n", command);
+                        }
+                    }
+                }           
+                
+            }
+        }
+        current_pos++; // Avance au caractère suivant
+    }
+
+
+
+
     if (!verif) {
-        printk("unknown power command %s\n", bufferstr);
+        printk("unknown sensibility test command %s\n", bufferstr);
         return;
     }
     PidParams pid_params(Ts, kp, Ti, Td, N, lower_bound, upper_bound);
@@ -632,6 +684,7 @@ void testSensiHandler()
         pid1.init(pid_params);
     } else if (test_leg == LEG2) {
         pid2.init(pid_params);
+        printk("done");
 #ifdef CONFIG_SHIELD_OWNVERTER
     } else if (test_leg == LEG3) {
         pid3.init(pid_params);    
