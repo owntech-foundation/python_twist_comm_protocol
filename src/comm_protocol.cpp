@@ -44,6 +44,26 @@ extern float32_t T2_value;
 extern float32_t V1_max;
 extern float32_t V2_max;
 
+extern float32_t kp;
+extern float32_t Ti;
+extern float32_t Td;
+extern float32_t N;
+extern float32_t upper_bound;
+extern float32_t lower_bound;
+extern float32_t V_ref;
+extern float32_t Ts;
+
+extern uint16_t dead_time_max;
+extern uint16_t dead_time_min;
+extern int16_t phase_shift_max;
+extern int16_t phase_shift_min;
+
+
+extern Pid pid1;
+extern Pid pid2;
+extern Pid pid3;
+
+
 #ifdef CONFIG_SHIELD_OWNVERTER
 
 extern float32_t V3_low_value;
@@ -52,6 +72,8 @@ extern float32_t V3_max;
 extern float32_t T3_value;
 
 #endif
+
+
 extern float32_t duty_cycle;
 bool is_downloading;
 bool enable_acq;
@@ -92,8 +114,21 @@ cmdToSettings_t power_settings[] = {
     {"_b", boolSettingsHandler},
     {"_t", boolSettingsHandler},
     {"_r", referenceHandler},
+    {"_p", phaseShiftHandler},
+    {"_x", deadTimeRisingHandler},
+    {"_z", deadTimeFallingHandler},
     {"_d", dutyHandler},
 };
+
+// testSensiSettings_t testSensi_settings[] = {
+//     {"_p", kpHandler},
+//     {"_i", tiHandler},
+//     {"_d", tdHandler},
+//     {"_n", nHandler},
+//     {"_u", upperHandler},
+//     {"_l", lowerHandler},
+//     {"_r", vrefHandler},
+// };
 
 cmdToState_t default_commands[] = {
     {"_i", IDLE},
@@ -111,9 +146,10 @@ tester_states_t mode = IDLE;
 scope_commands_t action;
 
 uint8_t num_tracking_vars = sizeof(tracking_vars)/sizeof(tracking_vars[0]);
-uint8_t num_power_settings =  sizeof(power_settings)/sizeof(power_settings[0]);
+uint8_t num_power_settings =  NUM_OF_SETTINGS;
 uint8_t num_default_commands = sizeof(default_commands)/sizeof(default_commands[0]);
 uint8_t num_scope_commands = sizeof(scope_commands)/sizeof(scope_commands[0]);
+uint8_t num_testSensi_settings =  sizeof(testSensi_settings)/sizeof(testSensi_settings[0]);
 
 ConsigneStruct_t tx_consigne;
 ConsigneStruct_t rx_consigne;
@@ -166,25 +202,29 @@ void initial_handle(uint8_t received_char)
     {
         case 'd':
             console_read_line();
-            printk("buffer str = %s\n", bufferstr);
+            printk("d buffer str = %s\n", bufferstr);
             defaultHandler();
             // spin.led.turnOn();
             break;
         case 's':
             console_read_line();
-            printk("buffer str = %s\n", bufferstr);
+            printk("s buffer str = %s\n", bufferstr);
             powerLegSettingsHandler();
             // counter = 0;
             break;
         case 'k':
             console_read_line();
-            printk("buffer str = %s\n", bufferstr);
+            printk("k buffer str = %s\n", bufferstr);
             calibrationHandler();
             break;
         case 'o': // 'o' for oscilloscope -> scope command ('a' or 'r')
             console_read_line();
-            printk("buffer str = %s\n", bufferstr);
+            printk("0 buffer str = %s\n", bufferstr);
             scopeHandler();
+        // case 't': // 'o' for oscilloscope -> scope command ('a' or 'r')
+        //     console_read_line();
+        //     printk("buffer str = %s\n", bufferstr);
+        //     testSensiHandler();
         // case 'r':
         //     is_downloading = true;
         //     break;
@@ -287,6 +327,181 @@ void console_read_line()
     }
 }
 
+// void kpHandler(uint8_t test_leg, uint8_t setting_position){
+//       if (strncmp(bufferstr, "_LEG1_d_", 8) == 0 || 
+//         strncmp(bufferstr, "_LEG2_d_", 8) == 0 || 
+//         strncmp(bufferstr, "_LEG3_d_", 8) == 0) 
+//     {
+//         // Extract the duty cycle value from the protocol message
+//         kp = atof(bufferstr + 9);
+
+//     } else {
+//         printk("Invalid protocol format: %s\n", bufferstr);
+//     }
+// }
+
+// void tiHandler(uint8_t test_leg, uint8_t setting_position){
+//       if (strncmp(bufferstr, "_LEG1_d_", 8) == 0 || 
+//         strncmp(bufferstr, "_LEG2_d_", 8) == 0 || 
+//         strncmp(bufferstr, "_LEG3_d_", 8) == 0) 
+//     {
+//         // Extract the duty cycle value from the protocol message
+//         Ti = atof(bufferstr + 9);
+
+//     } else {
+//         printk("Invalid protocol format: %s\n", bufferstr);
+//     }
+// }
+
+// void tdHandler(uint8_t test_leg, uint8_t setting_position){
+//       if (strncmp(bufferstr, "_LEG1_d_", 8) == 0 || 
+//         strncmp(bufferstr, "_LEG2_d_", 8) == 0 || 
+//         strncmp(bufferstr, "_LEG3_d_", 8) == 0) 
+//     {
+//         // Extract the duty cycle value from the protocol message
+//         Td = atof(bufferstr + 9);
+
+//     } else {
+//         printk("Invalid protocol format: %s\n", bufferstr);
+//     }
+// }
+
+// void nHandler(uint8_t test_leg, uint8_t setting_position){
+//       if (strncmp(bufferstr, "_LEG1_d_", 8) == 0 || 
+//         strncmp(bufferstr, "_LEG2_d_", 8) == 0 || 
+//         strncmp(bufferstr, "_LEG3_d_", 8) == 0) 
+//     {
+//         // Extract the duty cycle value from the protocol message
+//         N = atof(bufferstr + 9);
+
+//     } else {
+//         printk("Invalid protocol format: %s\n", bufferstr);
+//     }
+// }
+
+// void upperHandler(uint8_t test_leg, uint8_t setting_position){
+//       if (strncmp(bufferstr, "_LEG1_d_", 8) == 0 || 
+//         strncmp(bufferstr, "_LEG2_d_", 8) == 0 || 
+//         strncmp(bufferstr, "_LEG3_d_", 8) == 0) 
+//     {
+//         // Extract the duty cycle value from the protocol message
+//         upper_bound = atof(bufferstr + 9);
+
+//     } else {
+//         printk("Invalid protocol format: %s\n", bufferstr);
+//     }
+// }
+
+// void lowerHandler(uint8_t test_leg, uint8_t setting_position){
+//       if (strncmp(bufferstr, "_LEG1_d_", 8) == 0 || 
+//         strncmp(bufferstr, "_LEG2_d_", 8) == 0 || 
+//         strncmp(bufferstr, "_LEG3_d_", 8) == 0) 
+//     {
+//         // Extract the duty cycle value from the protocol message
+//         lower_bound = atof(bufferstr + 9);
+
+//     } else {
+//         printk("Invalid protocol format: %s\n", bufferstr);
+//     }
+// }
+
+// void vrefHandler(uint8_t test_leg, uint8_t setting_position){
+//       if (strncmp(bufferstr, "_LEG1_d_", 8) == 0 || 
+//         strncmp(bufferstr, "_LEG2_d_", 8) == 0 || 
+//         strncmp(bufferstr, "_LEG3_d_", 8) == 0) 
+//     {
+//         // Extract the duty cycle value from the protocol message
+//         V_ref = atof(bufferstr + 9);
+
+//     } else {
+//         printk("Invalid protocol format: %s\n", bufferstr);
+//     }
+// }
+
+void phaseShiftHandler(uint8_t power_leg, uint8_t setting_position){
+    // Check if the bufferstr starts with "_d_"
+    if (strncmp(bufferstr, "_LEG1_p_", 8) == 0 || 
+        strncmp(bufferstr, "_LEG2_p_", 8) == 0 || 
+        strncmp(bufferstr, "_LEG3_p_", 8) == 0) 
+    {
+        // Extract the phase shift value from the protocol message
+        int16_t phase_shift = atoi(bufferstr + 9);
+        printk("\n");
+        printk("phase shift value = %d", phase_shift);
+        printk("\n");
+
+        // Check if the phase shift value is within the valid range (min-max)
+        if (phase_shift >= phase_shift_min && phase_shift <= phase_shift_max) {
+            // Update the duty cycle variable
+            shield.power.setPhaseShift((leg_t)power_leg, phase_shift);
+            power_leg_settings[power_leg].phase_shift = phase_shift;
+        } else {
+            printk("Invalid phase shift value: %d\n", phase_shift);
+        }
+    } else {
+        printk("Invalid protocol format: %s\n", bufferstr);
+    }
+
+}
+
+void deadTimeRisingHandler(uint8_t power_leg, uint8_t setting_position){
+    // Check if the bufferstr starts with "_d_"
+    if (strncmp(bufferstr, "_LEG1_x_", 8) == 0 || 
+        strncmp(bufferstr, "_LEG2_x_", 8) == 0 || 
+        strncmp(bufferstr, "_LEG3_x_", 8) == 0) 
+    {
+        // Extract the duty cycle value from the protocol message
+        uint16_t dead_time_rising = atoi(bufferstr + 8);
+
+        // Check if the duty cycle value is within the valid range (min-max)
+        if (dead_time_rising >= dead_time_min && dead_time_rising <= dead_time_max) {
+            // Update the duty cycle variable
+            shield.power.setDeadTime((leg_t) power_leg, 
+                                      dead_time_rising, 
+                                      power_leg_settings[power_leg].dead_time_falling);
+
+            power_leg_settings[power_leg].dead_time_rising = dead_time_rising;           
+        } else {
+            printk("Invalid dead time value: %d\n", dead_time_rising);
+        }
+    } else {
+        printk("Invalid protocol format: %s\n", bufferstr);
+    }
+
+}
+
+void deadTimeFallingHandler(uint8_t power_leg, uint8_t setting_position){
+    // Check if the bufferstr starts with "_d_"
+    if (strncmp(bufferstr, "_LEG1_z_", 8) == 0 || 
+        strncmp(bufferstr, "_LEG2_z_", 8) == 0 || 
+        strncmp(bufferstr, "_LEG3_z_", 8) == 0) 
+    {
+        // Extract the duty cycle value from the protocol message
+        uint16_t dead_time_falling = atoi(bufferstr + 8);
+        printk("\n");
+        printk("dead time falling value = %d", dead_time_falling);
+        printk("\n");
+        
+
+        // Check if the duty cycle value is within the valid range (min-max)
+        if (dead_time_falling >= dead_time_min && dead_time_falling <= dead_time_max) {
+            // Update the duty cycle variable
+            shield.power.setDeadTime((leg_t) power_leg, 
+                                      power_leg_settings[power_leg].dead_time_rising, 
+                                      dead_time_falling);
+
+            power_leg_settings[power_leg].dead_time_falling = dead_time_falling;
+        } else {
+            printk("Invalid dead time value: %d\n", dead_time_falling);
+        }
+    } else {
+        printk("Invalid protocol format: %s\n", bufferstr);
+    }
+
+}
+
+
+
 
 void dutyHandler(uint8_t power_leg, uint8_t setting_position) {
     // Check if the bufferstr starts with "_d_"
@@ -295,7 +510,7 @@ void dutyHandler(uint8_t power_leg, uint8_t setting_position) {
         strncmp(bufferstr, "_LEG3_d_", 8) == 0) 
     {
         // Extract the duty cycle value from the protocol message
-        float32_t duty_value = atof(bufferstr + 9);
+        float32_t duty_value = atof(bufferstr + 8);
 
         // Check if the duty cycle value is within the valid range (0-100)
         if (duty_value >= 0.0 && duty_value <= 1.0) {
@@ -456,7 +671,67 @@ void scopeHandler()
 }  
 
 
+// void testSensiHandler()
+// {
+//     // Determine the power leg based on the received message
+//     leg_t test_leg = LEG1; // Default to LEG1 
+//     if (strncmp(bufferstr, "_LEG2_", strlen("_LEG2_")) == 0) {
+//         test_leg = LEG2;
+// #ifdef CONFIG_SHIELD_OWNVERTER
+//     } else if (strncmp(bufferstr, "_LEG3_", strlen("_LEG3_")) == 0) {
+//         power_leg = LEG3;    
+// #endif
+//     } else if (strncmp(bufferstr, "_LEG1_", strlen("_LEG1_")) == 0) {
+//         test_leg = LEG1;
+//     } else {
+//         printk("Unknown leg identifier\n");
+//         return;
+//     }
 
+//     // COMMAND EXTRACTION
+//     // Find the position of the second underscore after the leg identifier
+//     const char *underscore2 = strchr(bufferstr + 5, '_');
+//     if (underscore2 == NULL) {
+//         printk("Invalid command format\n");
+//         return;
+//     }
+//     // Extract the command part after the leg identifier
+//     char command[3];
+//     strncpy(command, underscore2, 2);
+//     command[2] = '\0';
+
+//     // FIND THE HANDLER OF THE SPECIFIC SETTING COMMAND
+//     bool verif = false;
+//     for(uint8_t i = 0; i < num_testSensi_settings; i++) //iterates the default commands
+//     {
+//         if (strncmp(command, testSensi_settings[i].cmd, strlen(testSensi_settings[i].cmd)) == 0)
+//         {
+//             if (testSensi_settings[i].func != NULL)
+//             {
+//                 testSensi_settings[i].func(test_leg, i); //pointer to the handler function associated with the command
+//                 verif = true;
+//             }
+            
+//         }
+//     }
+//     if (!verif) {
+//         printk("unknown power command %s\n", bufferstr);
+//         return;
+//     }
+//     PidParams pid_params(Ts, kp, Ti, Td, N, lower_bound, upper_bound);
+//     if (test_leg == LEG1){
+//         pid1.init(pid_params);
+//     } else if (test_leg == LEG2) {
+//         pid2.init(pid_params);
+// #ifdef CONFIG_SHIELD_OWNVERTER
+//     } else if (test_leg == LEG3) {
+//         pid3.init(pid_params);    
+// #endif
+//     } 
+    
+    
+    
+// }  
 
 
 
@@ -490,6 +765,9 @@ void powerLegSettingsHandler() {
     char command[3];
     strncpy(command, underscore2, 2);
     command[2] = '\0';
+    printk("\n");
+    printk("command found: %s", command);
+    printk("\n");
 
     // FIND THE HANDLER OF THE SPECIFIC SETTING COMMAND
     for(uint8_t i = 0; i < num_power_settings; i++) //iterates the default commands
@@ -499,6 +777,9 @@ void powerLegSettingsHandler() {
             if (power_settings[i].func != NULL)
             {
                 power_settings[i].func(power_leg, i); //pointer to the handler function associated with the command
+                printk("\n");
+                printk("number of settings sought: %d" ,i);
+                printk("\n");
             }
             return;
         }
