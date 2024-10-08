@@ -525,12 +525,13 @@ void testSensiHandler()
             if (testSensi_settings[i].func != NULL)
             {
                 testSensi_settings[i].func(power_leg, i); //pointer to the handler function associated with the command
+                is_test_performing = true;
             }
             return;
         }
     }
     printk("unknown power command %s\n", bufferstr);
-    is_test_performing = true;
+    
 }
     
 
