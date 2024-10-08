@@ -56,9 +56,6 @@ extern float32_t V_ref;
 extern float32_t Ts;
 
 
-extern Pid pid1;
-extern Pid pid2;
-extern Pid pid3;
 
 
 #ifdef CONFIG_SHIELD_OWNVERTER
@@ -337,6 +334,19 @@ void dutyHandler(uint8_t power_leg, uint8_t setting_position) {
 }
 
 
+void vrefHandler(uint8_t power_leg, uint8_t setting_position) {
+    // Check if the bufferstr starts with "_d_"
+    if (strncmp(bufferstr, "_LEG1_r_", 8) == 0 || 
+        strncmp(bufferstr, "_LEG2_r_", 8) == 0 || 
+        strncmp(bufferstr, "_LEG3_r_", 8) == 0) 
+    {
+        // Extract the duty cycle value from the protocol message
+        V_ref = atof(bufferstr + 9);
+    } else {
+        printk("Invalid protocol format: %s\n", bufferstr);
+    }
+}
+
 void referenceHandler(uint8_t power_leg, uint8_t setting_position){
     const char *underscore1 = strchr(bufferstr + 6, '_');
     if (underscore1 != NULL) {
@@ -491,7 +501,7 @@ void testSensiHandler()
         test_leg = LEG2;
 #ifdef CONFIG_SHIELD_OWNVERTER
     } else if (strncmp(bufferstr, "_LEG3_", strlen("_LEG3_")) == 0) {
-        power_leg = LEG3;    
+        test_leg = LEG3;    
 #endif
     } else if (strncmp(bufferstr, "_LEG1_", strlen("_LEG1_")) == 0) {
         test_leg = LEG1;
@@ -524,7 +534,7 @@ void testSensiHandler()
         {
             if (testSensi_settings[i].func != NULL)
             {
-                testSensi_settings[i].func(power_leg, i); //pointer to the handler function associated with the command
+                testSensi_settings[i].func(test_leg, i); //pointer to the handler function associated with the command
                 is_test_performing = true;
             }
             return;
