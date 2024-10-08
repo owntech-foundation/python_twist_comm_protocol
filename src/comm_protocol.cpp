@@ -32,6 +32,7 @@
 
 extern leg_t test_leg;
 extern bool is_test_performing;
+extern bool dc_open_cycle
 extern float32_t V1_low_value;
 extern float32_t V2_low_value;
 extern float32_t I1_low_value;
@@ -46,14 +47,8 @@ extern float32_t T2_value;
 extern float32_t V1_max;
 extern float32_t V2_max;
 
-extern float32_t kp;
-extern float32_t Ti;
-extern float32_t Td;
-extern float32_t N;
-extern float32_t upper_bound;
-extern float32_t lower_bound;
+
 extern float32_t V_ref;
-extern float32_t Ts;
 
 
 
@@ -536,6 +531,7 @@ void testSensiHandler()
             {
                 testSensi_settings[i].func(test_leg, i); //pointer to the handler function associated with the command
                 is_test_performing = true;
+                dc_open_cycle = true;
             }
             return;
         }
