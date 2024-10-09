@@ -32,7 +32,7 @@
 
 extern leg_t test_leg;
 extern bool is_test_performing;
-extern bool dc_open_cycle
+extern bool dc_open_cycle;
 extern float32_t V1_low_value;
 extern float32_t V2_low_value;
 extern float32_t I1_low_value;
@@ -336,7 +336,7 @@ void vrefHandler(uint8_t power_leg, uint8_t setting_position) {
         strncmp(bufferstr, "_LEG3_r_", 8) == 0) 
     {
         // Extract the duty cycle value from the protocol message
-        V_ref = atof(bufferstr + 9);
+        V_ref = atof(bufferstr + 8);
     } else {
         printk("Invalid protocol format: %s\n", bufferstr);
     }
