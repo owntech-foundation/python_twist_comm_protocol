@@ -115,12 +115,6 @@ cmdToSettings_t power_settings[] = {
 };
 
 testSensiSettings_t testSensi_settings[] = {
-    {"_p", kpHandler},
-    {"_i", tiHandler},
-    {"_d", tdHandler},
-    {"_n", nHandler},
-    {"_u", upperHandler},
-    {"_l", lowerHandler},
     {"_r", vrefHandler},
 };
 
@@ -321,93 +315,6 @@ void console_read_line()
     }
 }
 
-void kpHandler(uint8_t test_leg, uint8_t setting_position){
-    printk(" buffer Kp : %s, int : %d", (bufferstr +5), strncmp((bufferstr + 5), "_p_", 3));
-      if (strncmp((bufferstr + 5), "_p_", 3) == 0) 
-    {
-        // Extract the duty cycle value from the protocol message
-        kp = atof(bufferstr + 8);
-        printk(" buffer : %s et valeur : %f", (bufferstr + 8), kp);
-
-    } else {
-        printk("Invalid protocol format: %s\n", bufferstr);
-    }
-}
-
-void tiHandler(uint8_t test_leg, uint8_t setting_position){
-      if (strncmp(bufferstr, "_i_", 3)) 
-    {
-        // Extract the duty cycle value from the protocol message
-        Ti = atof(bufferstr + 21);
-        printk(" buffer : %s et valeur : %f", (bufferstr + 21), Ti);
-
-    } else {
-        printk("Invalid protocol format: %s\n", bufferstr);
-    }
-}
-
-void tdHandler(uint8_t test_leg, uint8_t setting_position){
-      if (strncmp(bufferstr, "_d_", 3)) 
-    {
-        // Extract the duty cycle value from the protocol message
-        Td = atof(bufferstr + 35);
-        printk(" buffer : %s et valeur : %f", (bufferstr + 35), Td);
-
-    } else {
-        printk("Invalid protocol format: %s\n", bufferstr);
-    }
-}
-
-void nHandler(uint8_t test_leg, uint8_t setting_position){
-      if (strncmp(bufferstr, "_n_", 3)) 
-    {
-        // Extract the duty cycle value from the protocol message
-        N = atof(bufferstr + 50);
-        printk(" buffer : %s et valeur : %f", (bufferstr + 50), N);
-
-    } else {
-        printk("Invalid protocol format: %s\n", bufferstr);
-    }
-}
-
-void upperHandler(uint8_t test_leg, uint8_t setting_position){
-      if (strncmp(bufferstr, "_u_", 3)) 
-    {
-        // Extract the duty cycle value from the protocol message
-        upper_bound = atof(bufferstr + 54);
-        printk(" buffer : %s et valeur : %f", (bufferstr + 54), upper_bound);
-
-    } else {
-        printk("Invalid protocol format: %s\n", bufferstr);
-    }
-}
-
-void lowerHandler(uint8_t test_leg, uint8_t setting_position){
-      if (strncmp(bufferstr, "_l_", 3)) 
-    {
-        // Extract the duty cycle value from the protocol message
-        lower_bound = atof(bufferstr + 60);
-        printk(" buffer : %s et valeur : %f", (bufferstr + 60), lower_bound);
-
-    } else {
-        printk("Invalid protocol format: %s\n", bufferstr);
-    }
-}
-
-void vrefHandler(uint8_t test_leg, uint8_t setting_position){
-      if (strncmp(bufferstr, "_r_", 3)) 
-    {
-        // Extract the duty cycle value from the protocol message
-        V_ref = atof(bufferstr + 66);
-        printk(" buffer : %s et valeur : %f", (bufferstr + 66), V_ref);
-
-    } else {
-        printk("Invalid protocol format: %s\n", bufferstr);
-    }
-}
-
-
-
 void dutyHandler(uint8_t power_leg, uint8_t setting_position) {
     // Check if the bufferstr starts with "_d_"
     if (strncmp(bufferstr, "_LEG1_d_", 8) == 0 || 
@@ -600,71 +507,32 @@ void testSensiHandler()
     
 
     // FIND THE HANDLER OF THE SPECIFIC SETTING COMMAND
-    bool verif = false;
-    const char *current_pos = strchr(bufferstr + 5, '_');
-    if (current_pos == NULL) {
+    const char *underscore2 = strchr(bufferstr + 5, '_');
+    if (underscore2 == NULL) {
         printk("Invalid command format\n");
         return;
     }
-    // Boucle sur tous les caractères de la chaîne reçue
-    while (*current_pos != '\0') {
-        // Cherche le caractère '_'
-        if (*current_pos == '_') {
-            // Vérifie si le caractère suivant est une lettre (A-Z ou a-z)
-            if (*(current_pos + 1) >= 'a' && *(current_pos + 1) <= 'z') {
-                // Ajoute le '_' et la lettre à la commande
-                char command[3];
-                strncpy(command, current_pos, 2);
-                command[2] = '\0';
-                command[0] = *current_pos;      // Ajoute le '_'
-                command[1] = *(current_pos + 1); // Ajoute la lettre
-                for (uint8_t i = 0; i < num_testSensi_settings; i++) {
-                    // Comparer la commande avec cmd de testSensi_settings
-                    if (strcmp(command, testSensi_settings[i].cmd) == 0) {
-                        // Si une correspondance est trouvée, appeler la fonction associée si elle existe
-                        if (testSensi_settings[i].func != NULL)
-                        {
-                            // strcpy(bufferstr, current_pos);
-                            testSensi_settings[i].func(test_leg, i); //pointer to the handler function associated with the command
-                            verif = true;
-                            printk("\ncommand : %s\n", command);
-                        }
-                    }
-                }           
-                
+    // Extract the command part after the leg identifier
+    char command[3];
+    strncpy(command, underscore2, 2);
+    command[2] = '\0';
+
+    // FIND THE HANDLER OF THE SPECIFIC SETTING COMMAND
+    for(uint8_t i = 0; i < num_testSensi_settings; i++) //iterates the default commands
+    {
+        if (strncmp(command, testSensi_settings[i].cmd, strlen(testSensi_settings[i].cmd)) == 0)
+        {
+            if (testSensi_settings[i].func != NULL)
+            {
+                testSensi_settings[i].func(power_leg, i); //pointer to the handler function associated with the command
             }
+            return;
         }
-        current_pos++; // Avance au caractère suivant
     }
-
-
-
-
-    if (!verif) {
-        printk("unknown sensibility test command %s\n", bufferstr);
-        return;
-    }
-    PidParams pid_params(Ts, kp, Ti, Td, N, lower_bound, upper_bound);
-    if (test_leg == LEG1){
-        pid1.init(pid_params);
-    } else if (test_leg == LEG2) {
-        pid2.init(pid_params);
-        printk("done");
-#ifdef CONFIG_SHIELD_OWNVERTER
-    } else if (test_leg == LEG3) {
-        pid3.init(pid_params);    
-#endif
-    }
+    printk("unknown power command %s\n", bufferstr);
     is_test_performing = true;
+}
     
-    
-    
-}  
-
-
-
-
-
 
 // Function to parse the power leg settings commands
 void powerLegSettingsHandler() {
