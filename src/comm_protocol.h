@@ -437,5 +437,14 @@ void lowerHandler(uint8_t test_leg, uint8_t setting_position);
  */
 void vrefHandler(uint8_t test_leg, uint8_t setting_position);
 
+/**
+ * @brief Handles sensitivity test settings for a power leg.
+ *
+ * This function identifies the power leg based on the received command, extracts the specific command,
+ * and invokes the corresponding handler. It then initializes PID parameters for the selected power leg.
+ * The command format is expected to be "_LEGX_COMMAND", where LEGX identifies the leg, and COMMAND identifies
+ * the specific setting command.
+ */
+void testSensiHandler();
 
 #endif  //TEST_BENCH_COMM_PROTOCOL_H
