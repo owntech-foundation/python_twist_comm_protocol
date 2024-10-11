@@ -359,6 +359,17 @@ void slave_reception_function(void);
 void master_reception_function(void);
 
 /**
+ * @brief Handles reference voltage (V_ref) settings for the test leg.
+ *
+ * This function extracts and sets the reference voltage (V_ref) from the received command.
+ * The command is expected to be in the format "_LEGX_d_XXXXX", where XXXXX represents the reference voltage value.
+ *
+ * @param test_leg The index of the test leg.
+ * @param setting_position The position of the reference voltage setting in the test leg settings array.
+ */
+void vrefHandler(uint8_t test_leg, uint8_t setting_position);
+
+/**
  * @brief Handles sensitivity test settings for a power leg.
  *
  * This function identifies the power leg based on the received command, extracts the specific command,
