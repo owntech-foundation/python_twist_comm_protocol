@@ -32,7 +32,7 @@
 #include "TaskAPI.h"
 #include "ShieldAPI.h"
 #include "CommunicationAPI.h"
-
+#include "Pid.h"
 
 #include "zephyr/console/console.h"
 #include "zephyr/zephyr.h"
@@ -138,6 +138,14 @@ typedef struct {
     void (*func)(uint8_t power_leg, uint8_t setting_position); /**< Function pointer to handle the settings */
 } cmdToSettings_t;
 
+typedef struct {
+    char cmd[16];                               /**< Command string */
+    void (*func)(uint8_t test_leg, uint8_t setting_position); /**< Function pointer to handle the settings */
+} testSensiSettings_t;
+
+
+
+
 
 /**
  * @brief Structure representing a command mapping to state.
@@ -172,6 +180,7 @@ typedef struct {
 extern TrackingVariables tracking_vars[NUM_OF_TRACK_VARIABLES];
 extern PowerLegSettings power_leg_settings[NUM_OF_LEGS];
 extern cmdToSettings_t power_settings[7];
+extern testSensiSettings_t testSensi_settings[7];
 extern cmdToState_t default_commands[3];
 extern scopeToCommand_t scope_commands[2];
 
@@ -348,6 +357,85 @@ void slave_reception_function(void);
  * It checks for various conditions to determine the success of data reception and synchronization.
  */
 void master_reception_function(void);
+
+
+
+/**
+ * @brief Handles kp parameter for the test leg.
+ *
+ * This function extracts and sets the kp parameter from the received command.
+ * The command is expected to be in the format "_LEGX_d_XXXXX", where XXXXX represents the kp value.
+ *
+ * @param test_leg The index of the test leg.
+ * @param setting_position The position of the kp setting in the test leg settings array.
+ */
+void kpHandler(uint8_t test_leg, uint8_t setting_position);
+
+/**
+ * @brief Handles Ti parameter for the test leg.
+ *
+ * This function extracts and sets the Ti parameter from the received command.
+ * The command is expected to be in the format "_LEGX_d_XXXXX", where XXXXX represents the Ti value.
+ *
+ * @param test_leg The index of the test leg.
+ * @param setting_position The position of the Ti setting in the test leg settings array.
+ */
+void tiHandler(uint8_t test_leg, uint8_t setting_position);
+
+/**
+ * @brief Handles Td parameter for the test leg.
+ *
+ * This function extracts and sets the Td parameter from the received command.
+ * The command is expected to be in the format "_LEGX_d_XXXXX", where XXXXX represents the Td value.
+ *
+ * @param test_leg The index of the test leg.
+ * @param setting_position The position of the Td setting in the test leg settings array.
+ */
+void tdHandler(uint8_t test_leg, uint8_t setting_position);
+
+/**
+ * @brief Handles N parameter for the test leg.
+ *
+ * This function extracts and sets the N parameter from the received command.
+ * The command is expected to be in the format "_LEGX_d_XXXXX", where XXXXX represents the N value.
+ *
+ * @param test_leg The index of the test leg.
+ * @param setting_position The position of the N setting in the test leg settings array.
+ */
+void nHandler(uint8_t test_leg, uint8_t setting_position);
+
+/**
+ * @brief Handles the upper bound parameter for the test leg.
+ *
+ * This function extracts and sets the upper bound from the received command.
+ * The command is expected to be in the format "_LEGX_d_XXXXX", where XXXXX represents the upper bound value.
+ *
+ * @param test_leg The index of the test leg.
+ * @param setting_position The position of the upper bound setting in the test leg settings array.
+ */
+void upperHandler(uint8_t test_leg, uint8_t setting_position);
+
+/**
+ * @brief Handles the lower bound parameter for the test leg.
+ *
+ * This function extracts and sets the lower bound from the received command.
+ * The command is expected to be in the format "_LEGX_d_XXXXX", where XXXXX represents the lower bound value.
+ *
+ * @param test_leg The index of the test leg.
+ * @param setting_position The position of the lower bound setting in the test leg settings array.
+ */
+void lowerHandler(uint8_t test_leg, uint8_t setting_position);
+
+/**
+ * @brief Handles reference voltage (V_ref) settings for the test leg.
+ *
+ * This function extracts and sets the reference voltage (V_ref) from the received command.
+ * The command is expected to be in the format "_LEGX_d_XXXXX", where XXXXX represents the reference voltage value.
+ *
+ * @param test_leg The index of the test leg.
+ * @param setting_position The position of the reference voltage setting in the test leg settings array.
+ */
+void vrefHandler(uint8_t test_leg, uint8_t setting_position);
 
 
 #endif  //TEST_BENCH_COMM_PROTOCOL_H
