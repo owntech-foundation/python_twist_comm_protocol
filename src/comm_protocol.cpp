@@ -29,6 +29,9 @@
 
 #include "comm_protocol.h"
 
+
+extern leg_t test_leg;
+extern bool is_test_performing;
 extern float32_t V1_low_value;
 extern float32_t V2_low_value;
 extern float32_t I1_low_value;
@@ -212,7 +215,7 @@ void initial_handle(uint8_t received_char)
             console_read_line();
             printk("buffer str = %s\n", bufferstr);
             scopeHandler();
-        case 't': // 'o' for oscilloscope -> scope command ('a' or 'r')
+        case 't': // 't' for sensibility test
             console_read_line();
             printk("buffer str = %s\n", bufferstr);
             testSensiHandler();
@@ -319,7 +322,8 @@ void console_read_line()
 }
 
 void kpHandler(uint8_t test_leg, uint8_t setting_position){
-      if (strncmp((bufferstr+5), "_p_", 3)) 
+    printk(" buffer Kp : %s, int : %d", (bufferstr +5), strncmp((bufferstr + 5), "_p_", 3));
+      if (strncmp((bufferstr + 5), "_p_", 3) == 0) 
     {
         // Extract the duty cycle value from the protocol message
         kp = atof(bufferstr + 8);
@@ -575,7 +579,7 @@ void scopeHandler()
 void testSensiHandler()
 {
     // Determine the power leg based on the received message
-    leg_t test_leg = LEG1; // Default to LEG1 
+     
     if (strncmp(bufferstr, "_LEG2_", strlen("_LEG2_")) == 0) {
         test_leg = LEG2;
 #ifdef CONFIG_SHIELD_OWNVERTER
@@ -597,45 +601,6 @@ void testSensiHandler()
 
     // FIND THE HANDLER OF THE SPECIFIC SETTING COMMAND
     bool verif = false;
-    // char* current_pos = underscore2;
-    
-    // while (*current_pos != '\0') {
-    //     // Extract the command part after the leg identifier
-        // char command[3];
-        // strncpy(command, current_pos, 2);
-        // command[2] = '\0';
-    //     printk("\ncurrent pos: %s; buffer : %s; command : %s \n", current_pos, bufferstr, command);
-    //     // Chercher le prochain '_'
-    //     char* next_underscore = strchr(current_pos + 1, '_');
-    //     if (!next_underscore) {
-    //         break;  // S'il n'y a plus de '_', on quitte la boucle
-    //     }
-
-    //     // Calcul de la longueur du segment de commande
-    //     int cmd_length = next_underscore - current_pos;
-        
-    //     // Vérifie chaque commande par rapport à la structure
-    //     for (uint8_t i = 0; i < num_testSensi_settings; i++) {
-    //         // Compare la commande (e.g., "_p", "_i", etc.)
-    //         if (strncmp(current_pos, testSensi_settings[i].cmd, strlen(testSensi_settings[i].cmd)) == 0) {
-    //             // Affiche la commande reconnue
-    //             // printk("Command: %s \n", testSensi_settings[i].cmd);
-                
-    //             // Appelle la fonction associée si elle existe
-    //             if (testSensi_settings[i].func != NULL) {
-    //                 testSensi_settings[i].func(test_leg, i); // Appel de la fonction associée
-    //                 verif = true;
-    //             }
-    //             break;  // On sort de la boucle si la commande est trouvée
-    //         }
-    //     }
-        
-    //     // Passe à la prochaine partie de la chaîne
-    //     // current_pos = next_underscore;
-    //     strcpy(current_pos, next_underscore);
-    //     strcpy(bufferstr, current_pos);
-    // }
-
     const char *current_pos = strchr(bufferstr + 5, '_');
     if (current_pos == NULL) {
         printk("Invalid command format\n");
@@ -689,7 +654,8 @@ void testSensiHandler()
     } else if (test_leg == LEG3) {
         pid3.init(pid_params);    
 #endif
-    } 
+    }
+    is_test_performing = true;
     
     
     
