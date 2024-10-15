@@ -505,9 +505,9 @@ void deadTimeFallingHandler(uint8_t power_leg, uint8_t setting_position){
 
 void dutyHandler(uint8_t power_leg, uint8_t setting_position) {
     // Check if the bufferstr starts with "_d_"
-    if (strncmp(bufferstr, "_LEG1_d_", 8) == 0 || 
-        strncmp(bufferstr, "_LEG2_d_", 8) == 0 || 
-        strncmp(bufferstr, "_LEG3_d_", 8) == 0) 
+    if (strncmp(bufferstr, "_LEG1_d_", 9) == 0 || 
+        strncmp(bufferstr, "_LEG2_d_", 9) == 0 || 
+        strncmp(bufferstr, "_LEG3_d_", 9) == 0) 
     {
         // Extract the duty cycle value from the protocol message
         float32_t duty_value = atof(bufferstr + 8);
