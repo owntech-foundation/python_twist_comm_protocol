@@ -101,9 +101,9 @@ TrackingVariables tracking_vars[] = {
 PowerLegSettings power_leg_settings[] = {
     //   LEG_OFF      ,   CAPA_OFF      , DRIVER_OFF      ,  BUCK_MODE_ON,  BOOST_MODE_ON
     {{BOOL_SETTING_OFF, BOOL_SETTING_OFF, BOOL_SETTING_OFF,  BOOL_SETTING_OFF,  BOOL_SETTING_OFF}, {LEG1, LEG1},  &V1_low_value, "V1", reference_value, 0.1},
-    {{BOOL_SETTING_OFF, BOOL_SETTING_OFF, BOOL_SETTING_OFF,  BOOL_SETTING_OFF,  BOOL_SETTING_OFF}, {LEG2, LEG2},  &V2_low_value, "V2", reference_value, 0.1}
+    {{BOOL_SETTING_OFF, BOOL_SETTING_OFF, BOOL_SETTING_OFF,  BOOL_SETTING_OFF,  BOOL_SETTING_OFF}, {LEG2, LEG2},  &V2_low_value, "V2", reference_value,  0.1}
 #ifdef CONFIG_SHIELD_OWNVERTER
-    ,{{BOOL_SETTING_OFF, BOOL_SETTING_OFF, BOOL_SETTING_OFF,  BOOL_SETTING_OFF,  BOOL_SETTING_OFF}, {LEG3, LEG3},  &V3_low_value, "V3", reference_value, 0.1}
+    ,{{BOOL_SETTING_OFF, BOOL_SETTING_OFF, BOOL_SETTING_OFF,  BOOL_SETTING_OFF,  BOOL_SETTING_OFF}, {LEG3, LEG3},  &V3_low_value, "V3", reference_value, frequency_value, 0.1}
 #endif
 };
 
@@ -118,6 +118,7 @@ cmdToSettings_t power_settings[] = {
     {"_x", deadTimeRisingHandler},
     {"_z", deadTimeFallingHandler},
     {"_d", dutyHandler},
+    {"_f", frequencyHandler},
 };
 
 // testSensiSettings_t testSensi_settings[] = {
@@ -425,7 +426,7 @@ void phaseShiftHandler(uint8_t power_leg, uint8_t setting_position){
         strncmp(bufferstr, "_LEG3_p_", 8) == 0) 
     {
         // Extract the phase shift value from the protocol message
-        int16_t phase_shift = atoi(bufferstr + 9);
+        int16_t phase_shift = atoi(bufferstr + 8);
         printk("\n");
         printk("phase shift value = %d", phase_shift);
         printk("\n");
@@ -444,12 +445,43 @@ void phaseShiftHandler(uint8_t power_leg, uint8_t setting_position){
 
 }
 
+void frequencyHandler(uint8_t power_leg, uint8_t setting_position){
+    // Check if the bufferstr starts with "_d_"
+    if (strncmp(bufferstr, "_LEG1_p_", 8) == 0 || 
+        strncmp(bufferstr, "_LEG2_p_", 8) == 0 || 
+        strncmp(bufferstr, "_LEG3_p_", 8) == 0) 
+    {
+        // Extract the phase shift value from the protocol message
+        uint32_t frequency = atoi(bufferstr + 8);
+        printk("\n");
+        printk("frequency value = %d", frequency);
+        printk("\n");
+
+        hrtim_tu_number_t unit = PWMA;
+
+        // Check if the phase shift value is within the valid range (min-max)
+        if (frequency >= spin.pwm.getFrequencyMin(unit) && frequency <= spin.pwm.getFrequencyMax(unit)) {
+            // Update the duty cycle variable
+            spin.pwm.setFrequency(frequency);
+            power_leg_settings[power_leg].frequency = frequency;
+        } else {
+            printk("Invalid frequency value: %d\n", frequency);
+            printk("Min frequency value: %d\n", frequency);
+            printk("Max frequency value: %d\n", frequency);
+        }
+    } else {
+        printk("Invalid protocol format: %s\n", bufferstr);
+    }
+
+}
+
 void deadTimeRisingHandler(uint8_t power_leg, uint8_t setting_position){
     // Check if the bufferstr starts with "_d_"
     if (strncmp(bufferstr, "_LEG1_x_", 8) == 0 || 
         strncmp(bufferstr, "_LEG2_x_", 8) == 0 || 
         strncmp(bufferstr, "_LEG3_x_", 8) == 0) 
     {
+
         // Extract the duty cycle value from the protocol message
         uint16_t dead_time_rising = atoi(bufferstr + 8);
 
@@ -505,9 +537,9 @@ void deadTimeFallingHandler(uint8_t power_leg, uint8_t setting_position){
 
 void dutyHandler(uint8_t power_leg, uint8_t setting_position) {
     // Check if the bufferstr starts with "_d_"
-    if (strncmp(bufferstr, "_LEG1_d_", 9) == 0 || 
-        strncmp(bufferstr, "_LEG2_d_", 9) == 0 || 
-        strncmp(bufferstr, "_LEG3_d_", 9) == 0) 
+    if (strncmp(bufferstr, "_LEG1_d_", 8) == 0 || 
+        strncmp(bufferstr, "_LEG2_d_", 8) == 0 || 
+        strncmp(bufferstr, "_LEG3_d_", 8) == 0) 
     {
         // Extract the duty cycle value from the protocol message
         float32_t duty_value = atof(bufferstr + 8);

@@ -76,7 +76,7 @@
 
 #endif
 
-#define NUM_OF_SETTINGS 10
+#define NUM_OF_SETTINGS 11
 
 #define LENGTH_FRAME_COMM_VAR 4
 #define LENGTH_OFF_FRAME_VAR_PER_LEG 9
@@ -131,6 +131,7 @@ typedef struct {
     int16_t phase_shift;           /**< phase shift value */
     uint16_t dead_time_rising;      /**< dead time rising value */
     uint16_t dead_time_falling;     /**< dead time falling value */
+    uint32_t frequency;             /**< leg frequency */
 } PowerLegSettings;
 
 /**
@@ -326,6 +327,18 @@ void boolSettingsHandler(uint8_t power_leg, uint8_t setting_position);
  * @param setting_position The position of the duty cycle setting in the power leg settings array.
  */
 void dutyHandler(uint8_t power_leg, uint8_t setting_position);
+
+/**
+ * @brief Handles frequency for a power leg.
+ *
+ * This function changes the frequency of the power leg. 
+ *
+ * @param power_leg The index of the power leg.
+ * @param setting_position The position of the duty cycle setting in the power leg settings array.
+ */
+void frequencyHandler(uint8_t power_leg, uint8_t setting_position);
+
+
 
 /**
  * @brief Handles phase shift settings for a power leg.
