@@ -447,9 +447,9 @@ void phaseShiftHandler(uint8_t power_leg, uint8_t setting_position){
 
 void frequencyHandler(uint8_t power_leg, uint8_t setting_position){
     // Check if the bufferstr starts with "_d_"
-    if (strncmp(bufferstr, "_LEG1_p_", 8) == 0 || 
-        strncmp(bufferstr, "_LEG2_p_", 8) == 0 || 
-        strncmp(bufferstr, "_LEG3_p_", 8) == 0) 
+    if (strncmp(bufferstr, "_LEG1_f_", 8) == 0 || 
+        strncmp(bufferstr, "_LEG2_f_", 8) == 0 || 
+        strncmp(bufferstr, "_LEG3_f_", 8) == 0) 
     {
         // Extract the phase shift value from the protocol message
         uint32_t frequency = atoi(bufferstr + 8);
