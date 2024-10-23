@@ -32,7 +32,7 @@
 #include "TaskAPI.h"
 #include "ShieldAPI.h"
 #include "CommunicationAPI.h"
-#include "Pid.h"
+#include "pid.h"
 
 #include "zephyr/console/console.h"
 #include "zephyr/zephyr.h"
