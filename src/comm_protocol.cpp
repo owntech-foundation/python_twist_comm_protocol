@@ -439,7 +439,7 @@ void boolSettingsHandler(uint8_t power_leg, uint8_t setting_position)
     } else if (strncmp(bufferstr + 7, "_off", 4) == 0) {
         power_leg_settings[power_leg].settings[setting_position] = BOOL_SETTING_OFF;
 #ifdef CONFIG_SHIELD_TWIST
-        if (setting_position == BOOL_CAPA)  shield.power.connectCapacitor((leg_t)power_leg);  //turns the capacitor switch ON
+        if (setting_position == BOOL_CAPA)  shield.power.disconnectCapacitor((leg_t)power_leg);  //turns the capacitor switch ON
 #endif
         if (setting_position == BOOL_DRIVER) shield.power.disconnectDriver((leg_t)power_leg) ;  
     }
