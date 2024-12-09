@@ -86,7 +86,7 @@ you can use the following commands with the Twist Board Protocol:
     - Serial-side output: `k_{VARIABLE}_g_{GAIN:.8f}_o_{OFFSET:.8f}`
     - Example: `k_V1_g_22.03409353_o_0.11349874`
 
-### 12. **TEST_SENSI**
+12. **TEST_SENSI**
    - Python-side command: `twistObject.sendCommand("TEST_SENSI", "LEG_IDENTIFIER", REF)`
      - `"LEG_IDENTIFIER"`: `"LEG1"`, `"LEG2"`
      - `REF`: A float value with one decimal.
