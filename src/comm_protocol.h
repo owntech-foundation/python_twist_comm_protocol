@@ -30,12 +30,12 @@
 //-------------OWNTECH DRIVERS-------------------
 #include "SpinAPI.h"
 #include "TaskAPI.h"
-#include "ShieldAPI.h"
-#include "CommunicationAPI.h"
+#include "TwistAPI.h"
+#include "DataAPI.h"
 
 
 #include "zephyr/console/console.h"
-#include "zephyr/zephyr.h"
+#include "zephyr/kernel.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -58,34 +58,8 @@
 #define CAPA_SWITCH_INDEX 0
 #define DRIVER_SWITCH_INDEX 1
 
-
 #define GET_ID(x) ((x >> 6) & 0x3)        // retrieve identifiant
 #define GET_STATUS(x) (x & 1) // check the status (IDLE MODE or POWER MODE)
-
-#ifdef CONFIG_SHIELD_TWIST
-
-#define NUM_OF_TRACK_VARIABLES 6
-#define NUM_OF_LEGS 2
-
-#endif
-
-#ifdef CONFIG_SHIELD_OWNVERTER
-
-#define NUM_OF_TRACK_VARIABLES 8
-#define NUM_OF_LEGS 3
-
-#endif
-
-#define LENGTH_FRAME_COMM_VAR 4
-#define LENGTH_OFF_FRAME_VAR_PER_LEG 9
-#define LENGTH_OFF_FRAME (LENGTH_FRAME_COMM_VAR + (NUM_OF_LEGS * LENGTH_OFF_FRAME_VAR_PER_LEG) )
-
-
-#define LENGTH_ON_FRAME_COMM_VAR 4
-#define LENGTH_ON_FRAME_VAR_PER_LEG 5
-#define LENGTH_ON_FRAME_VAR_HIGH 2
-#define LENGTH_ON_FRAME ((NUM_OF_LEGS * LENGTH_ON_FRAME_VAR_PER_LEG) + LENGTH_ON_FRAME_VAR_HIGH + LENGTH_FRAME_COMM_VAR )
-
 
 extern uint8_t received_serial_char;
 extern uint8_t received_char;
@@ -98,10 +72,6 @@ typedef enum
 
 extern tester_states_t mode;
 
-typedef enum
-{
-    READ_SCOPE, ENABLE_ACQUISITION
-} scope_commands_t;
 
 /**
  * @brief Structure representing tracking variables and their information.
@@ -111,7 +81,7 @@ typedef enum
 typedef struct {
     const char *name;           /**< Name of the tracking variable */
     float32_t *address;         /**< Memory address of the tracking variable */
-    sensor_t channel_reference; /**< Channel reference of the tracking variable */
+    channel_t channel_reference; /**< Channel reference of the tracking variable */
 } TrackingVariables;
 /**
  * @brief Structure representing the settings of a power leg.
@@ -121,7 +91,7 @@ typedef struct {
  */
 typedef struct {
     bool settings[5];               /**< Array of boolean settings */
-    leg_t switches[2];              /**< Array of switches */
+    pin_t switches[2];              /**< Array of switches */
     float32_t *tracking_variable;   /**< Pointer to the tracking variable */
     const char *tracking_var_name;  /**< Name of the tracking variable */
     float32_t reference_value;      /**< Reference value */
@@ -149,11 +119,6 @@ typedef struct {
     tester_states_t mode;    /**< Tester state */
 } cmdToState_t;
 
-typedef struct {
-    char cmd[16];             /**< Command string */
-    scope_commands_t action;    /**< Scope command */
-} scopeToCommand_t;
-
 
 /**
  * @brief Structure representing various measurements and statuses.
@@ -169,11 +134,10 @@ typedef struct {
     uint8_t id_and_status;          /**< Status information */
 } ConsigneStruct_t;
 
-extern TrackingVariables tracking_vars[NUM_OF_TRACK_VARIABLES];
-extern PowerLegSettings power_leg_settings[NUM_OF_LEGS];
+extern TrackingVariables tracking_vars[6];
+extern PowerLegSettings power_leg_settings[2];
 extern cmdToSettings_t power_settings[7];
 extern cmdToState_t default_commands[3];
-extern scopeToCommand_t scope_commands[2];
 
 extern tester_states_t mode;
 extern uint8_t num_tracking_vars;
@@ -185,7 +149,7 @@ extern ConsigneStruct_t rx_consigne;
 
 extern uint8_t* buffer_tx;
 extern uint8_t* buffer_rx;
-extern Rs485Communication rs485;
+
 
 extern uint8_t status;
 extern uint32_t counter_time;
@@ -235,29 +199,6 @@ extern bool print_done;
  */
 void initial_handle(uint8_t received_char);
 
-
-/**
- * @brief Sends out a POWER OFF frame.
- *
- * This factory test ON frame sends out data on the following format:
- *
- * {RS485,Sync,Analog,CAN}:
- * [LEG_ON,CAPA_ON,DRIVER_ON,BUCK_ON,BOOST_ON]:DUTY:REF_VALUE:REF_NAME:REF_VAR_ADDR:
- * [LEG_ON,CAPA_ON,DRIVER_ON,BUCK_ON,BOOST_ON]:DUTY:REF_VALUE:REF_NAME:REF_VAR_ADDR:
- */
-void frame_POWER_OFF();
-
-/**
- * @brief Sends out a POWER ON frame.
- *
- * This function sends out a POWER ON frame with data on the following format:
- *
- * DUTY1:V1:I1:V1_MAX:DUTY2:V2:I2:V2_MAX:VH:IH:{Analog,CAN_CTRL,CAN_REF,RS485_Value}
- */
-void frame_POWER_ON();
-
-
-
 /**
  * @brief Reads a line from the console input.
  *
@@ -273,14 +214,6 @@ void console_read_line();
  *
  */
 void defaultHandler();
-
-/**
- * @brief Handles scope commands.
- *
- * This function handles scope commands by matching the received command with predefined scope commands and executing corresponding actions.
- *
- */
-void scopeHandler();
 
 /**
  * @brief Handles power leg settings commands.
@@ -332,22 +265,6 @@ void referenceHandler(uint8_t power_leg, uint8_t setting_position);
  * and XX.XXXXX represents the offset.
  */
 void calibrationHandler();
-
-/**
- * @brief Handles slave communication reception.
- *
- * This function receives data from the slave device, processes it, and prepares a response.
- * It updates various variables and starts transmission over the RS485 communication interface.
- */
-void slave_reception_function(void);
-
-/**
- * @brief Handles master communication reception.
- *
- * This function receives data from the master device, processes it, and updates relevant variables.
- * It checks for various conditions to determine the success of data reception and synchronization.
- */
-void master_reception_function(void);
 
 
 #endif  //TEST_BENCH_COMM_PROTOCOL_H
