@@ -241,7 +241,7 @@ class Shield_Device:
             >>> sendCommand("LEG", "A", "ON")
         """
 
-        action_types = ("LEG", "CAPA", "DRIVER", "BUCK", "BOOST", "REFERENCE", "DUTY", "PHASE_SHIFT", "DEAD_TIME_RISING", "DEAD_TIME_FALLING", "CALIBRATE")
+        action_types = ("LEG", "CAPA", "DRIVER", "BUCK", "BOOST", "REFERENCE", "DUTY", "PHASE_SHIFT", "DEAD_TIME_RISING", "DEAD_TIME_FALLING", "CALIBRATE", "FREQUENCY")
 
         # Dictionary mapping actions to their message formats
         message_formats = {
@@ -255,6 +255,7 @@ class Shield_Device:
             "BOOST": lambda leg, state: f"s_{leg.upper()}_t_{state.lower()}",
             "REFERENCE": lambda leg, variable, value: f"s_{leg.upper()}_r_{variable.upper()}_{value:.5f}",
             "PHASE_SHIFT": lambda leg, value: f"s_{leg.upper()}_p_{value}",
+            "FREQUENCY": lambda leg, value: f"s_{leg.upper()}_f_{value}",
             "DEAD_TIME_RISING": lambda leg, value: f"s_{leg.upper()}_x_{value}",
             "DEAD_TIME_FALLING": lambda leg, value: f"s_{leg.upper()}_z_{value}",
             "DUTY": lambda leg, value: f"s_{leg.upper()}_d_{value:.5f}",
