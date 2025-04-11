@@ -251,6 +251,7 @@ class Shield_Device:
             "REFERENCE": lambda leg, variable, value: f"s_{leg.upper()}_r_{variable.upper()}_{value:.5f}",
             "DUTY": lambda leg, value: f"s_{leg.upper()}_d_{value:.5f}",
             "CALIBRATE": lambda variable, gain, offset: f"k_{variable.upper()}_g_{gain:.8f}_o_{offset:.8f}",
+            "TEST_SENSI": lambda leg, value: f"t_{leg.upper()}_r_{value:.1f}",
             }
 
         # Check if action is valid
