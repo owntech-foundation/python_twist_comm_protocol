@@ -446,7 +446,7 @@ void phaseShiftHandler(uint8_t power_leg, uint8_t setting_position){
 }
 
 void frequencyHandler(uint8_t power_leg, uint8_t setting_position){
-    // Check if the bufferstr starts with "_d_"
+    // Check if the bufferstr starts with "_f_"
     if (strncmp(bufferstr, "_LEG1_f_", 8) == 0 || 
         strncmp(bufferstr, "_LEG2_f_", 8) == 0 || 
         strncmp(bufferstr, "_LEG3_f_", 8) == 0) 
@@ -459,15 +459,16 @@ void frequencyHandler(uint8_t power_leg, uint8_t setting_position){
 
         hrtim_tu_number_t unit = PWMA;
 
+        uint32_t min_frequency = spin.pwm.getFrequencyMin(unit);
+
         // Check if the phase shift value is within the valid range (min-max)
-        if (frequency >= spin.pwm.getFrequencyMin(unit) && frequency <= spin.pwm.getFrequencyMax(unit)) {
+        if (frequency >= min_frequency) {
             // Update the duty cycle variable
             spin.pwm.setFrequency(frequency);
             power_leg_settings[power_leg].frequency = frequency;
         } else {
             printk("Invalid frequency value: %d\n", frequency);
-            printk("Min frequency value: %d\n", frequency);
-            printk("Max frequency value: %d\n", frequency);
+            printk("Min frequency value: %d\n", min_frequency);
         }
     } else {
         printk("Invalid protocol format: %s\n", bufferstr);
