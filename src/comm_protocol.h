@@ -35,7 +35,7 @@
 #include "pid.h"
 
 #include "zephyr/console/console.h"
-#include "zephyr/zephyr.h"
+#include "zephyr/kernel.h"
 
 #include <stdio.h>
 #include <string.h>
