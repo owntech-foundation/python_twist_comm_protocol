@@ -103,7 +103,7 @@ PowerLegSettings power_leg_settings[] = {
     {{BOOL_SETTING_OFF, BOOL_SETTING_OFF, BOOL_SETTING_OFF,  BOOL_SETTING_OFF,  BOOL_SETTING_OFF}, {LEG1, LEG1},  &V1_low_value, "V1", reference_value, 0.1},
     {{BOOL_SETTING_OFF, BOOL_SETTING_OFF, BOOL_SETTING_OFF,  BOOL_SETTING_OFF,  BOOL_SETTING_OFF}, {LEG2, LEG2},  &V2_low_value, "V2", reference_value,  0.1}
 #ifdef CONFIG_SHIELD_OWNVERTER
-    ,{{BOOL_SETTING_OFF, BOOL_SETTING_OFF, BOOL_SETTING_OFF,  BOOL_SETTING_OFF,  BOOL_SETTING_OFF}, {LEG3, LEG3},  &V3_low_value, "V3", reference_value, frequency_value, 0.1}
+    ,{{BOOL_SETTING_OFF, BOOL_SETTING_OFF, BOOL_SETTING_OFF,  BOOL_SETTING_OFF,  BOOL_SETTING_OFF}, {LEG3, LEG3},  &V3_low_value, "V3", reference_value, 0.1}
 #endif
 };
 
