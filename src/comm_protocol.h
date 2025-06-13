@@ -177,7 +177,7 @@ typedef struct {
 typedef struct {
     uint8_t test_RS485;             /**< Variable for testing RS485 */
     uint8_t test_Sync;              /**< Variable for testing Sync */
-    uint16_t test_CAN;             /**< Variable for testing the CAN Bus */
+    float32_t test_CAN;             /**< Variable for testing the CAN Bus */
     bool test_bool_CAN;             /**< Boolean variable for testing the CAN Bus */
     uint16_t analog_value_measure;  /**< Analog measurement */
     uint8_t id_and_status;          /**< Status information */
@@ -228,7 +228,7 @@ extern uint8_t ctrl_slave_counter;
 
 /* CAN Bus test parameters*/
 extern bool can_test_ctrl_enable;
-extern uint16_t can_test_reference_value;
+extern float32_t can_test_reference_value;
 
 
 /* CAN Bus test master parameters*/

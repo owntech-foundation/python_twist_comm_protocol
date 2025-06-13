@@ -58,6 +58,10 @@ extern uint16_t dead_time_min;
 extern int16_t phase_shift_max;
 extern int16_t phase_shift_min;
 
+extern uint8_t hall_rising_edge_success[3]  ;
+extern uint8_t hall_falling_edge_success[3] ;
+extern uint8_t sin_cos_rising_edge_success[2]     ;
+extern uint8_t sin_cos_falling_edge_success[2]    ;
 
 extern Pid pid1;
 extern Pid pid2;
@@ -182,7 +186,7 @@ uint8_t sync_master_counter = 0;
 
 /* CAN Bus test parameters*/
 bool can_test_ctrl_enable;
-uint16_t can_test_reference_value;
+float32_t can_test_reference_value;
 
 uint16_t CAN_Bus_receive;
 uint16_t CAN_Bus_receive_ref = 3000;
@@ -273,6 +277,18 @@ void frame_POWER_OFF()
     printk("%f:", power_leg_settings[LEG3].reference_value);
     printk("%s:", power_leg_settings[LEG3].tracking_var_name);
     printk("%f:", tracking_vars[LEG3].address[0]);
+    printk("{%u,%u}:", hall_rising_edge_success[0],
+                       hall_falling_edge_success[0]);
+    printk("{%u,%u}:", hall_rising_edge_success[1],
+                       hall_falling_edge_success[1]);
+    printk("{%u,%u}:", hall_rising_edge_success[2],
+                       hall_falling_edge_success[2]);
+    printk("{%u,%u}:", sin_cos_rising_edge_success[0],
+                       sin_cos_falling_edge_success[0]);
+    printk("{%u,%u}:", sin_cos_rising_edge_success[1],
+                       sin_cos_falling_edge_success[1]);
+
+
 #endif
     printk("\n");
 }
@@ -298,7 +314,7 @@ void frame_POWER_ON()
 #endif
     printk("%f:", V_high_value);
     printk("%f:", I_high_value);
-    printk("{%d:%d:%d:%d}", analog_value ,
+    printk("{%d:%d:%f:%d}", analog_value ,
                             can_test_ctrl_enable,
                             can_test_reference_value,
                             rx_consigne.test_RS485);
