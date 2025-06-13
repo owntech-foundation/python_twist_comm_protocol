@@ -86,7 +86,7 @@ extern uint16_t NB_DATAS;
 
 extern Rs485Communication rs485;
 
-float32_t reference_value = 0.0;
+uint16_t reference_value = 0.0;
 
 // Declare the tracking variable struct
 TrackingVariables tracking_vars[] = {
@@ -841,7 +841,7 @@ void slave_reception_function(void)
 {
     tx_consigne = rx_consigne;
     tx_consigne.test_bool_CAN  = can_test_ctrl_enable;
-    tx_consigne.test_CAN = can_test_reference_value;
+    tx_consigne.test_CAN = (uint16_t)can_test_reference_value;
     tx_consigne.test_RS485 = rx_consigne.test_RS485 + 1;
     tx_consigne.test_Sync = ctrl_slave_counter;
     tx_consigne.analog_value_measure = analog_value;
