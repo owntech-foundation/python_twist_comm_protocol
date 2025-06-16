@@ -249,6 +249,10 @@ void frame_POWER_OFF()
                                 Sync_success,
                                 Analog_success,
                                 Can_success);
+    printk("{%d,%u,%d,%d}:", rs485_receive,
+                                Sync_success,
+                                analog_value,
+                                CAN_Bus_bool_receive);
     printk("[%d,%d,%d,%d,%d]:", power_leg_settings[LEG1].settings[0],
                                 power_leg_settings[LEG1].settings[1],
                                 power_leg_settings[LEG1].settings[2],
@@ -842,7 +846,7 @@ void slave_reception_function(void)
     tx_consigne = rx_consigne;
     tx_consigne.test_bool_CAN  = can_test_ctrl_enable;
     tx_consigne.test_CAN = (uint16_t)can_test_reference_value;
-    tx_consigne.test_RS485 = rx_consigne.test_RS485 + 1;
+    tx_consigne.test_RS485 = rx_consigne.test_RS485 + 25;
     tx_consigne.test_Sync = ctrl_slave_counter;
     tx_consigne.analog_value_measure = analog_value;
 
@@ -856,14 +860,13 @@ void master_reception_function(void)
     CAN_Bus_receive = rx_consigne.test_CAN;
     CAN_Bus_bool_receive = rx_consigne.test_bool_CAN;
 
-    if(test_start && (rs485_receive == rs485_send + 1)) RS485_success = true;
+    if(test_start && (rs485_receive == rs485_send + 25)) RS485_success = true;
     if(test_start && RS485_success && (analog_value - analog_value_ref > 50 || analog_value - analog_value_ref > -50)) Analog_success = true;
     if(test_start && RS485_success && (CAN_Bus_receive - CAN_Bus_receive_ref > 50 || CAN_Bus_receive - CAN_Bus_receive_ref > -50  )) Can_success = true;
-    if(test_start && RS485_success && (sync_master_counter < 5 && rx_consigne.test_Sync == 10))
+    if(test_start && RS485_success && (sync_master_counter < 5 && rx_consigne.test_Sync > 10))
     {
         sync_master_counter++;
         if(sync_master_counter == 5) Sync_success = true;
-
     }
 }
 
