@@ -63,6 +63,12 @@ extern uint8_t hall_falling_edge_success[3] ;
 extern uint8_t sin_cos_rising_edge_success[2]     ;
 extern uint8_t sin_cos_falling_edge_success[2]    ;
 
+extern uint8_t sin_cos_rising_edge_count[2];
+extern uint8_t sin_cos_falling_edge_count[2];
+extern uint8_t hall_rising_edge_count[3];
+extern uint8_t hall_falling_edge_count[3];
+
+
 extern Pid pid1;
 extern Pid pid2;
 extern Pid pid3;
@@ -249,10 +255,6 @@ void frame_POWER_OFF()
                                 Sync_success,
                                 Analog_success,
                                 Can_success);
-    printk("{%d,%u,%d,%d}:", rs485_receive,
-                                Sync_success,
-                                analog_value,
-                                CAN_Bus_bool_receive);
     printk("[%d,%d,%d,%d,%d]:", power_leg_settings[LEG1].settings[0],
                                 power_leg_settings[LEG1].settings[1],
                                 power_leg_settings[LEG1].settings[2],
@@ -281,15 +283,15 @@ void frame_POWER_OFF()
     printk("%f:", power_leg_settings[LEG3].reference_value);
     printk("%s:", power_leg_settings[LEG3].tracking_var_name);
     printk("%f:", tracking_vars[LEG3].address[0]);
-    printk("{%u,%u}:", hall_rising_edge_success[0],
+    printk("{%d,%d}:", hall_rising_edge_success[0],
                        hall_falling_edge_success[0]);
-    printk("{%u,%u}:", hall_rising_edge_success[1],
+    printk("{%d,%d}:", hall_rising_edge_success[1],
                        hall_falling_edge_success[1]);
-    printk("{%u,%u}:", hall_rising_edge_success[2],
+    printk("{%d,%d}:", hall_rising_edge_success[2],
                        hall_falling_edge_success[2]);
-    printk("{%u,%u}:", sin_cos_rising_edge_success[0],
+    printk("{%d,%d}:", sin_cos_rising_edge_success[0],
                        sin_cos_falling_edge_success[0]);
-    printk("{%u,%u}:", sin_cos_rising_edge_success[1],
+    printk("{%d,%d}:", sin_cos_rising_edge_success[1],
                        sin_cos_falling_edge_success[1]);
 
 
@@ -862,12 +864,11 @@ void master_reception_function(void)
 
     if(test_start && (rs485_receive == rs485_send + 25)) RS485_success = true;
     if(test_start && RS485_success && (analog_value - analog_value_ref > 50 || analog_value - analog_value_ref > -50)) Analog_success = true;
-    if(test_start && RS485_success && (CAN_Bus_receive - CAN_Bus_receive_ref > 50 || CAN_Bus_receive - CAN_Bus_receive_ref > -50  )) Can_success = true;
+    if(test_start && (CAN_Bus_ref == 345.0)) Can_success = true;
     if(test_start && RS485_success && (sync_master_counter < 5 && rx_consigne.test_Sync > 10))
     {
         sync_master_counter++;
         if(sync_master_counter == 5) Sync_success = true;
     }
 }
-
 

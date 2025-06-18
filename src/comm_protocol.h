@@ -235,6 +235,7 @@ extern float32_t can_test_reference_value;
 extern uint16_t CAN_Bus_receive;
 extern uint16_t CAN_Bus_receive_ref;
 extern bool CAN_Bus_bool_receive;
+extern float32_t CAN_Bus_ref;
 
 extern uint16_t reference_value;
 
