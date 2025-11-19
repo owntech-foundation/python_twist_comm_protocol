@@ -29,7 +29,8 @@ from Shield_Class import Shield_Device
 # from owntech.lib.USB.comm_protocol.src.Shield_Class import Shield_Device
 
 shield_vid = 0x2fe3
-shield_pid = 0x0101
+shield_pid = 0x0100  #address for "slave mode"
+# shield_pid = 0x0101  #address for "master mode"
 
 Shield_ports = find_devices.find_shield_device_ports(shield_vid, shield_pid)
 print(Shield_ports)
