@@ -92,7 +92,7 @@ extern uint16_t NB_DATAS;
 
 extern Rs485Communication rs485;
 
-uint16_t reference_value = 0.0;
+float32_t reference_value = 0.0F;
 
 // Declare the tracking variable struct
 TrackingVariables tracking_vars[] = {
@@ -595,7 +595,7 @@ void referenceHandler(uint8_t power_leg, uint8_t setting_position){
             reference_value = atof(underscore2 + 1);
 
             printk("Variable: %s\n", variable);
-            printk("Value: %.5f\n", reference_value);
+            printk("Value: %.5f\n", (double)reference_value);
 
             // Finds the tracking variable and updates the address of the tracking_variable
             for (uint8_t i = 0; i < num_tracking_vars; i++) {
@@ -871,4 +871,3 @@ void master_reception_function(void)
         if(sync_master_counter == 5) Sync_success = true;
     }
 }
-

@@ -227,6 +227,8 @@ class Shield_Device:
                 - "REFERENCE": Sets the reference value for a specific variable on the Twist board.
                 - "DUTY": Sets the duty cycle value for a specific leg on the Twist board.
                 - "CALIBRATE": Calibrates a specific variable on the Twist board.
+                - "ENABLE_ACQUISITION": Toggles the ScopeMimicry trigger.
+                - "READ_SCOPE": Requests the current ScopeMimicry dump.
             *args: Optional arguments corresponding to the action.
             delay (float, optional): The delay (in seconds) after sending the command. Default is 0.2 seconds.
 
@@ -260,6 +262,8 @@ class Shield_Device:
             "DEAD_TIME_FALLING": lambda leg, value: f"s_{leg.upper()}_z_{value}",
             "DUTY": lambda leg, value: f"s_{leg.upper()}_d_{value:.5f}",
             "CALIBRATE": lambda variable, gain, offset: f"k_{variable.upper()}_g_{gain:.8f}_o_{offset:.8f}",
+            "ENABLE_ACQUISITION": "o_a",
+            "READ_SCOPE": "o_r",
             }
 
         # Check if action is valid
@@ -274,3 +278,4 @@ class Shield_Device:
         time.sleep(delay)
 
         return message
+

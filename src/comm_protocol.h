@@ -194,6 +194,8 @@ extern tester_states_t mode;
 extern uint8_t num_tracking_vars;
 extern uint8_t num_power_settings;
 extern uint8_t num_default_commands;
+extern bool is_downloading;
+extern bool enable_acq;
 
 extern ConsigneStruct_t tx_consigne;
 extern ConsigneStruct_t rx_consigne;
@@ -237,7 +239,7 @@ extern uint16_t CAN_Bus_receive_ref;
 extern bool CAN_Bus_bool_receive;
 extern float32_t CAN_Bus_ref;
 
-extern uint16_t reference_value;
+extern float32_t reference_value;
 
 extern bool print_done;
 
