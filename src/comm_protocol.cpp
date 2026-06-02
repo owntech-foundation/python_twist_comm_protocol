@@ -479,15 +479,14 @@ void frequencyHandler(uint8_t power_leg, uint8_t setting_position){
         printk("frequency value = %d", frequency);
         printk("\n");
 
-        hrtim_tu_number_t unit = PWMA;
-
-        uint32_t min_frequency = spin.pwm.getFrequencyMin(unit);
+        uint32_t min_frequency = shield.power.getFrequencyMin();
 
         // Check if the phase shift value is within the valid range (min-max)
         if (frequency >= min_frequency) {
-            // Update the duty cycle variable
-            spin.pwm.setFrequency(frequency);
-            power_leg_settings[power_leg].frequency = frequency;
+            shield.power.setFrequency(frequency);
+            for (uint8_t i = 0; i < NUM_OF_LEGS; i++) {
+                power_leg_settings[i].frequency = frequency;
+            }
         } else {
             printk("Invalid frequency value: %d\n", frequency);
             printk("Min frequency value: %d\n", min_frequency);
