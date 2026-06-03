@@ -229,6 +229,7 @@ class Shield_Device:
                 - "CALIBRATE": Calibrates a specific variable on the Twist board.
                 - "ENABLE_ACQUISITION": Toggles the ScopeMimicry trigger.
                 - "READ_SCOPE": Requests the current ScopeMimicry dump.
+                - "RIPPLE_ACQUISITION": Runs a one-shot steady-state ADC trigger sweep for later retrieval with READ_SCOPE.
             *args: Optional arguments corresponding to the action.
             delay (float, optional): The delay (in seconds) after sending the command. Default is 0.2 seconds.
 
@@ -264,6 +265,7 @@ class Shield_Device:
             "CALIBRATE": lambda variable, gain, offset: f"k_{variable.upper()}_g_{gain:.8f}_o_{offset:.8f}",
             "ENABLE_ACQUISITION": "o_a",
             "READ_SCOPE": "o_r",
+            "RIPPLE_ACQUISITION": "o_p",
             }
 
         # Check if action is valid
@@ -278,4 +280,3 @@ class Shield_Device:
         time.sleep(delay)
 
         return message
-

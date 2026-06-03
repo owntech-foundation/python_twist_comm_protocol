@@ -87,6 +87,7 @@ extern float32_t T3_value;
 extern float32_t duty_cycle;
 bool is_downloading;
 bool enable_acq;
+bool ripple_capture_requested;
 extern uint32_t num_trig_ratio_point;
 extern uint16_t NB_DATAS;
 
@@ -150,6 +151,7 @@ cmdToState_t default_commands[] = {
 scopeToCommand_t scope_commands[] = {
     {"_a", ENABLE_ACQUISITION},
     {"_r", READ_SCOPE},
+    {"_p", RIPPLE_ACQUISITION},
 };
 
 
@@ -228,7 +230,7 @@ void initial_handle(uint8_t received_char)
             printk("k buffer str = %s\n", bufferstr);
             calibrationHandler();
             break;
-        case 'o': // 'o' for oscilloscope -> scope command ('a' or 'r')
+        case 'o': // 'o' for oscilloscope -> scope command ('a', 'r' or 'p')
             console_read_line();
             printk("0 buffer str = %s\n", bufferstr);
             scopeHandler();
@@ -705,17 +707,20 @@ void defaultHandler()
 
 void scopeHandler()
 {
-    for(uint8_t i = 0; i < num_default_commands; i++) //iterates the default commands
+    for(uint8_t i = 0; i < num_scope_commands; i++)
     {
         if (strncmp(bufferstr, scope_commands[i].cmd, strlen(scope_commands[i].cmd)) == 0)
         {
             action = scope_commands[i].action;
             if (action == ENABLE_ACQUISITION) {
                 enable_acq = !(enable_acq);
-                printk("abble");
+                printk("scope acquisition armed\n");
             } else if (action == READ_SCOPE) {
                 is_downloading = true;
-                printk("action");
+                printk("scope read requested\n");
+            } else if (action == RIPPLE_ACQUISITION) {
+                ripple_capture_requested = true;
+                printk("ripple acquisition requested\n");
             }
             print_done = false; //authorizes printing the current state once
             return;

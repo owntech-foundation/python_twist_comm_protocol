@@ -102,7 +102,7 @@ extern tester_states_t mode;
 
 typedef enum
 {
-    READ_SCOPE, ENABLE_ACQUISITION
+    READ_SCOPE, ENABLE_ACQUISITION, RIPPLE_ACQUISITION
 } scope_commands_t;
 
 /**
@@ -188,7 +188,7 @@ extern PowerLegSettings power_leg_settings[NUM_OF_LEGS];
 extern cmdToSettings_t power_settings[NUM_OF_SETTINGS];
 extern testSensiSettings_t testSensi_settings[7];
 extern cmdToState_t default_commands[3];
-extern scopeToCommand_t scope_commands[2];
+extern scopeToCommand_t scope_commands[3];
 
 extern tester_states_t mode;
 extern uint8_t num_tracking_vars;
@@ -196,6 +196,7 @@ extern uint8_t num_power_settings;
 extern uint8_t num_default_commands;
 extern bool is_downloading;
 extern bool enable_acq;
+extern bool ripple_capture_requested;
 
 extern ConsigneStruct_t tx_consigne;
 extern ConsigneStruct_t rx_consigne;
